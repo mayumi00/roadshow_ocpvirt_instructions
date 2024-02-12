@@ -3,18 +3,18 @@
 
 = Migration Toolkit for Virtualization
 
-== Introduction
+== はじめに
 
-This lab uses the https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization/[Migration Toolkit for Virtualization] (MTV) to import a virtual machine from VMware vSphere to OpenShift. The migration toolkit supports two "modes" of import:
+このラボでは、 link:https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization/[Migration Toolkit for Virtualization] (MTV) を使って、VMware vSphere から OpenShift に仮想マシンをインポートします。 MTV は 2つのタイプのインポート方式をサポートしています。
 
-* Cold migration turns off the source virtual machine before starting the migration. This is the default migration type.
-* Warm migration copies data while the source virtual machine continues to run. Once the bulk of data has been migrated, the VM is shutdown and the final data is copied to the destination. The new VM can then be started, resulting in a much shorter period of downtime for the VM-hosted application.
+* コールド・マイグレーション +
+マイグレーションを開始する前にソース仮想マシンの電源を切ります。デフォルトの移行タイプです。
+* ウォーム・マイグレーション +
+ソースとなる VM を稼働させながら、バックグラウンドで VM のデータをコピーします。データの大部分がコピーされると VM はシャットダウンされ、最終の差分データがコピーされた後に移行先で VM が起動します。VM のダウンタイムを大幅に短縮することができます。
 
-The migration toolkit has already been deployed to your cluster using the Operator. Documentation for how to install and configure the Operator can be found https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization/[here].
+このラボでは、MTV は Operator を使用してクラスタに導入済みです。MTV Operator のインストールおよび設定方法に関するドキュメントは、link:https://access.redhat.com/documentation/ja-jp/migration_toolkit_for_virtualization/[こちら]を参照してください。
 
-If you would like to learn more about how to configure the Migration Toolkit for Virtualization, please see https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization/2.4/html/installing_and_using_the_migration_toolkit_for_virtualization/prerequisites#rhv-prerequisites_mtv[here] for documentation with Red Hat Virtualization or https://access.redhat.com/documentation/en-us/migration_toolkit_for_virtualization/2.4/html/installing_and_using_the_migration_toolkit_for_virtualization/prerequisites#vmware-prerequisites_mtv[here] for VMware vSphere.
-
-== Prerequisites for the VMware Provider
+== VMware プロバイダの前提条件
 
 ////
 The firewalls must enable traffic over the following ports:
@@ -31,73 +31,74 @@ Disk transfer authentication
 |===
 ////
 
-The following prerequisites apply to all migrations:
+どのような方法で OpenShift Virtualization 環境に VM を移行する場合でも、次のようなルールが適用されます：
 
-* ISO/CD-ROM disks must be unmounted.
-* Each NIC must contain one IPv4 and/or one IPv6 address.
-* The VM operating system must be certified and supported for use as a link:https://access.redhat.com/articles/973163#ocpvirt[guest operating system with OpenShift Virtualization].
-* VM names must contain only lowercase letters (a-z), numbers (0-9), or hyphens (-), up to a maximum of 253 characters. The first and last characters must be alphanumeric. The name must not contain uppercase letters, spaces, periods (.), or special characters.
-* VM names must not duplicate the name of an existing VM in the OpenShift Virtualization environment.
+* ISO/CD-ROM イメージはアンマウントされていること。
+* 各 NIC は 1 つの IPv4 アドレス または IPv6 アドレスを持つこと。
+* VM の OS は link:https://access.redhat.com/articles/973163#ocpvirt[OpenShift Virtualization のゲスト OS] として認証およびサポートされていること。
+* VM の名前は、小文字 (a-z)、数字 (0-9)、またはハイフン (-) のみで、最大 253 文字であること。かつ、最初と最後の文字は英数字であること。
+名前に大文字 (A-Z)、スペース、ピリオド(.)、特殊文字を含んではならない。
+* VM は OpenShift Virtualization 環境の既存の VM の名前と重複しないこと。
 
-The *Migration Toolkit for Virtualization* will automatically assign a new name to a VM that does not comply with the rules. If this happens, MTV will automatically generate a new VM name to allow the migration to proceed smoothly.
+*Migration Toolkit for Virtualization (MTV)* では、名前のルールに準拠していない VM に新しい名前を自動的に生成して割り当て、移行がスムーズに進むようにします。
 
-== Migrating Virtual Machines from VMware
+== VMware からの仮想マシンの移行
 
-A three-tier application has been deployed on VMware for you to migrate to OpenShift.
+OpenShift に移行する 3 層のアプリケーションが VMware 上にデプロイされています。
 
-The application consists of the following four virtual machines:
+アプリケーションは以下の4つの VM で構成されています：
 
-* One HAproxy system that redirects traffic to the web servers
-* Two Microsoft Windows servers with IIS hosting a PHP application connecting to the database
-* One Linux system running a MariaDB database
+* トラフィックを Web サーバにリダイレクトする HAproxy サーバ 1台
+* データベースに接続する PHP アプリケーションをホストする、IIS を搭載した Microsoft Windows Server 2 台
+* MariaDB データベースを実行する Linux サーバ 1 台
 
 // WKTBD: Replace with actual link for each student
-The application is accessible from the following link: http://webapp.vc.opentlc.com/
+アプリケーションには次のリンクからアクセスできます: link:http://webapp.vc.opentlc.com/
 
-You will migrate three of the four virtual machines - you will not need to migrate the HAproxy (load balancer) VM because OpenShift handles network traffic and load balancing natively for VMs connected to the SDN using a `Service`.
+ここでは 4 つのうち、3 つの VM だけ移行します。OpenShift は `Service` を使うことで、SDN に接続する VM のネットワークトラフィックとロードバランシングをネイティブに処理します。したがって、HAproxy (ロードバランサ) VM を移行する必要はありません。
 
-=== Review the VMware environment
+=== VMware 環境のレビュー
 
-To help understand the process of mapping resources, such as datastores and port groups, from vSphere into OpenShift's equivalents, network attachment definitions and storage classes, let's begin by reviewing the source environment for the migrations.
+Datastore や Port Group などの vSphere のリソースと、OpnnShift で相当するリソース `Storage Class` や `Network Attachment Definitions` とがマッピングするプロセスを把握するために、まずは移行元の環境を確認してみましょう。
 
 // WKTBD: Replace with link to student's individual account
-. Navigate to vCenter via link:https://portal.vc.opentlc.com/ui/app/folder;nav=v/urn:vmomi:Folder:group-d1:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/vms/vms[https://portal.vc.opentlc.com^]
+. link:https://portal.vc.opentlc.com/ui/app/folder;nav=v/urn:vmomi:Folder:group-d1:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/vms/vms[https://portal.vc.opentlc.com^] から vCenter に移動します。
 
 // WKTBD: replace with student's credentials
-. Login with the user `%vcenter_user%@vc.opentlc.com` and the password `%vcenter_password%`
+. ユーザ `%vcenter_user%@vc.opentlc.com` とパスワード `%vcenter_password%` でログインします。
 
-. By default you'll see the VMs and Folders view, where you can see the four VMs representing the application.
+. デフォルトでは VMs and Folders ビューが表示され、アプリケーションを構成する4つの VM が表示されます。
 +
 image::images/MTV/100_vSphere_VM_List.png[]
 +
 [NOTE]
-The VMs with the suffix `_running` are the active ones. As for the migration have to be stopped, a clone of the VMs were created for the migration. Those VMs are the ones without that suffix.
+実際に稼働している VM は、`_running` のサフィックスが付いているものです。後に行う MTV でのコールド・マイグレーションでは VM が停止している必要があるため、`_running` が付いていない VM は事前にクローンした、停止しているものです。
 
-. Change to the networks view (or click link:https://portal.vc.opentlc.com/ui/app/dvportgroup;nav=n/urn:vmomi:DistributedVirtualPortgroup:dvportgroup-1916:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/ports[ this link^]), then expand the tree to view the port group used by the virtual machines. Note that the name is `segment-migrating-to-ocpvirt`.
+. ネットワークビューに移動 (または link:https://portal.vc.opentlc.com/ui/app/dvportgroup;nav=n/urn:vmomi:DistributedVirtualPortgroup:dvportgroup-1916:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/ports[このリンク^]をクリック) し、ツリーを展開して VM が使用しているポートグループを表示します。名前が `segment-migrating-to-ocpvirt` であることを確認します。
 +
 image::images/MTV/101_vSphere_Network.png[]
 
-. Finally, review the datastore by browsing to the datastores view (or using link:https://portal.vc.opentlc.com/ui/app/datastore;nav=s/urn:vmomi:Datastore:datastore-48:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/vms/vms[this link^]). Expand the tree to see the name of the datastore, `WorkloadDatastore`, and optionally browse to the *VMs* sub-tab to view the capacity used by each virtual machine.
+. 最後に、データストアビューに移動 (または link:https://portal.vc.opentlc.com/ui/app/datastore;nav=s/urn:vmomi:Datastore:datastore-48:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/vms/vms[このリンク^]をクリック) し、データストアを確認します。ツリーを展開してデータストア名が `WorkloadDatastore` であることを確認します。さらに、*VMs* のサブタブに移動し、各 VM の使用容量を確認します。
 +
 image::images/MTV/102_vSphere_Datastore.png[]
 
-=== Review the VMware provider to the migration toolkit
+=== 仮想化プロバイダのレビュー
 
-The *Migration Toolkit for Virtualization* (*MTV*) uses the VMware Virtual Disk Development Kit (*VDDK*) SDK to transfer virtual disks from VMware vSphere. This VDDK has already been set up for you in this environment.
+*Migration Toolkit for Virtualization* (*MTV*) は、VMware Virtual Disk Development Kit (*VDDK*) SDK を使用して、VMware vSphere から仮想ディスクを転送します。この環境では VDDK はすでにセットアップされています
 
-. Navigate in the left menu to *Migration* -> *Providers for virtualization*
-. Select project `openshift-mtv`
+. 左メニューの *Migration* -> *Providers for virtualization* に移動します。
+. プロジェクト `openshift-mtv` を選択します。
 +
 image::images/MTV/91_MTV_Providers.png[]
 +
 [TIP]
-MTV 2.4 and later are project/namespace aware and do not require administrator privileges. You can delegate VM imports to application teams and VM users so that they can self-serve and migrate at their own pace!
+MTV 2.4 以降では、ユーザ作成のプロジェクト / Namespace を認識し、管理者権限を必要としません。そのため、VM のインポートをアプリケーション・チームや VM ユーザに委ねて、彼らが自分のペースで移行できるようにすることもできます！
 
-. By default, there is a provider called `host` which represents the *OpenShift Virtualization* as a target platform
+. ターゲット (移行先) のプラットフォームとして OpenShift Virtualization を表す `host` というプロバイダがあります。これはデフォルトで作成されます。
 +
 image::images/MTV/92_MTV_Provider_list.png[]
 
-. The lab is already configured with the VMWare provider named `vmware`.
+. このラボでは既に `vmware` という VMware プロバイダが設定されています。
 
 ////
 However, you will need to register the source vCenter system to the Migration Toolkit for Virtualization as a new provider.
@@ -129,17 +130,17 @@ image::images/MTV/95_MTV_Provider_Added.png[]
 Now MTV knows about your VMware vSphere environment and can connect to it.
 ////
 
-=== Create storage and network mappings
+=== ネットワークとストレージのマッピング
 
-Storage and networking are managed differently in VMware vSphere and Red Hat OpenShift. Therefore it is necessary to maps from the source datastores and networks in VMware vSphere to the equivalent in OpenShift so that the migration toolkit understands how to connect and place virtual machines after importing.
+VMware vSphere と Red Hat OpenShift では、ネットワークとストレージの管理方法が異なります。そのため、MTV がインポートした後に OpenShift 上での VM の接続と配置を認識できるよう、ソースとなる VMware vSphere ネットワークとデータストアから OpenShift の同等のものへのマッピングが必要になります。
 
-These only need to be configured once and are then reused in subsequent VM Migration Plans.
+これらを設定する必要があるのは一度だけで、後の `Migration Plan` の中で再利用されます。
 
-. Navigate in the left menu to *Migration* -> *NetworkMaps for virtualization* and press *Create NetworkMap*
+. 左メニューの *Migration* -> *NetworkMaps for virtualization* に移動し、*Create NetworkMap* をクリックします。
 +
 image::images/MTV/96_MTV_NetworkMaps.png[]
 
-. Fill in the following information in the appeared dialog. Press *Create*.
+. 以下の情報を入力し、*Create* をクリックします。
 .. *Name*: `mapping-segment`
 .. *Source provider*: `vmware`
 .. *Target provider*: `host`
@@ -148,15 +149,15 @@ image::images/MTV/96_MTV_NetworkMaps.png[]
 +
 image::images/MTV/97_Add_VMWARE_Mapping_Network.png[]
 
-. Ensure the created mapping has the *Status* `Ready`
+. 作成されたマッピングの *Status* が `Ready` であることを確認します。
 +
 image::images/MTV/98_List_VMWARE_Mapping_Network.png[]
 
-. Navigate in the left menu to *Migration* -> *StorageMaps for virtualization* and press *Create StorageMap*
+. 左メニューの *Migration* -> *StorageMaps for virtualization* に移動し、*Create StorageMap* をクリックします。
 +
 image::images/MTV/99_MTV_StorageMaps.png[]
 
-. Fill in the following information. Press *Create*.
+. 以下の情報を入力し、*Create* をクリックします。
 .. *Name*: `mapping-datastore`
 .. *Source provider*: `vmware`
 .. *Target provider*: `host`
@@ -165,19 +166,19 @@ image::images/MTV/99_MTV_StorageMaps.png[]
 +
 image::images/MTV/100_Add_VMWARE_Mapping_Storage.png[]
 
-. Ensure the created mapping has the *Status* `Ready`
+. 作成されたマッピングの *Status* が `Ready` であることを確認します。
 +
 image::images/MTV/101_List_VMWARE_Mapping_Storage.png[]
 
-=== Create a Migration Plan
+=== Migration Plan の作成
 
-Now that you have the virtualization provider and the two mappings (network & storage) you can create a Migration Plan - this plan selects which VMs to migrate from VMware vSphere to Red Hat OpenShift Virtualization and how to execute the migration (cold/warm, network mapping, storage mapping, pre-/post-hooks, etc.).
+プロバイダ間で 2 つのマッピング (ネットワークとストレージ) ができたので、`Migration Plan` を作ります。この `Migration Plan` では、VMware vSphere から Red Hat OpenShift Virtualization に移行する VM を指定し、移行をどう行うか (コールド/ウォーム、ネットワークマッピング、ストレージマッピング、pre-/post-hook など) を指定します。
 
-. Navigate in the left menu to *Migration* -> *Plans for virtualization* and press *Create plan*
+. 左メニューの *Migration* -> *Plans for virtualization* に移動し、*Create plan* をクリックします。
 +
 image::images/MTV/102_Create_VMWARE_Plan.png[]
 
-. On the wizard fill the following information on the *General settings* step. Press *Next* when done.
+. ウィザードの *General settings* ステップで以下の情報を入力し、完了したら *Next* をクリックします。
 .. *Plan name*: `move-webapp-vmware`
 .. *Source provider*: `vmware`
 .. *Target provider*: `host`
@@ -185,55 +186,56 @@ image::images/MTV/102_Create_VMWARE_Plan.png[]
 +
 image::images/MTV/52_General_VMWARE_Plan.png[]
 
-. On the next step, select `All datacenters`  and press *Next*
+. 次のステップでは、`All datacenters` を選択し、*Next* をクリックします。
 +
 image::images/MTV/53_VM_Filter_VMWARE_Plan.png[]
 
-. On the next step select the three VMs: database, winweb01 and winweb02. Press *Next*:
+. 次のステップで、3 つの VM : database, winweb01, winweb02 を選択し、*Next* をクリックします。
 +
 image::images/MTV/54_VM_Select_VMWARE_Plan.png[]
 
-. On the *Network mapping* step select `mapping-segment` and press *Next*
+. *Network mapping* のステップで、`mapping-segment` を選択し、*Next* をクリックします。
 +
 image::images/MTV/55_Network_VMWARE_Plan.png[]
 
-. On the *Storage mapping* step select `mapping-datastore` and press *Next*
+. *Storage mapping* のステップで、`mapping-datastore` を選択し、*Next* をクリックします。
 +
 image::images/MTV/56_Storage_VMWARE_Plan.png[]
 
-. Press *Next* on the steps *Type* and *Hooks*
+. *Type* と *Hooks* のステップでは、何も変更せずにそのまま *Next* をクリックします。
 
-. Review the configuration specified and press *Finish*
+. 指定した内容を確認し、*Finish* をクリックします。
 +
 image::images/MTV/57_Finish_VMWARE_Plan.png[]
 
-. Ensure the status of the plan is *Ready*
+. 作成した `Migration Plan` の *Status* が `Ready` であることを確認します。
 +
 image::images/MTV/58_Ready_VMWARE_Plan.png[]
 
-. Press *Start* to begin the migration of the three VMs
+. *Start* をクリックして、3 つの VM の移行を開始します。
 
-. After around 10 minutes the migration is completed
+. 約 10 分後に 移行は完了します。
 +
 image::images/MTV/59_Completed_VMWARE_Plan.png[]
 +
 [IMPORTANT]
 ====
-Having many participants performing the same task in parallel can cause this task to perform slower than in a real environment. Please be patient.
+多数の参加者が同時にタスクを並行して実行することで、実際の環境よりも遅くなることがあります。しばらくお待ちください。
 ====
 
-=== Review and configure migrated Virtual Machines
+=== 移行した仮想マシンの確認と設定
 
-Your VMs have now been migrated and can be started on OpenShift Virtualization. You could connect to the VM consoles and interact with them as you would in VMware vCenter.
+これで VM が移行され、OpenShift Virtualization 上で起動できるようになりました。VM コンソールに接続して VMware vCenter と同じように操作することができます。
 
-If you want to learn more about how to use OpenShift and Kubernetes features with the application hosted in the imported virtual machines, complete the optional module "Exposing apps using a Route".
+インポートされた VM で稼働するアプリケーションを使って、OpenShift と Kubernetes の機能についてもっと学びたい場合は、モジュール "Route を使ったアプリケーションの公開" を実施してください。
 
-== Summary
+== まとめ
 
-In addition to the Migration Toolkit for Virtualization, there are three other migration toolkits. The combination of these can be used to move many workloads into and within OpenShift clusters depending on your organization's needs. 
+Migration Toolkit for Virtualization (MTV) を使って、VMware vSphere から OpenShift Virtualization に VM を移行しました。
+MTV の他にも 3 つの Migraton Toolkit があります。これらの組み合わせて使用することで、組織のニーズに応じて、多くのワークロードを OpenShift クラスタに移行し、移動させることができます。
 
-* https://developers.redhat.com/products/mtr/overview[Migration Toolkit for Runtimes] - Assist and accelerate Java application modernization and migration.
-* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/[Migration Toolkit for Applications] - Accelerate large-scale application modernization efforts to containers and Kubernetes.
-* https://docs.openshift.com/container-platform/4.12/migration_toolkit_for_containers/about-mtc.html[Migration Toolkit for Containers] - Migrate stateful application workloads between OpenShift clusters.
+* https://developers.redhat.com/products/mtr/overview[Migration Toolkit for Runtimes] -  Javaアプリケーションのモダナイゼーションと移行を支援 / 加速します。
+* https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications/[Migration Toolkit for Applications] - 大規模アプリケーションのコンテナと Kubernetes を使ったモダナイゼーションの作業を加速します。
+* https://docs.openshift.com/container-platform/4.12/migration_toolkit_for_containers/about-mtc.html[Migration Toolkit for Containers] - OpenShiftクラスタ間でステートフルなアプリケーション・ワークロードを移行します。
 
-For more information about these, please reach out to your Red Hat account team.
+これらの詳細については、Red Hat アカウント・チームにお問い合わせください。

@@ -1,7 +1,7 @@
 :scrollbar:
 :toc2:
 
-= Migration Toolkit for Virtualization
+= 仮想マシンの移行 (Migration Toolkit for Virtualization)
 
 == はじめに
 

@@ -2,215 +2,201 @@
 :toc2:
 :numbered:
 
-= OpenShift Virtualization Basics
+= OpenShift Virtualization の基礎
 
-This lab will introduce you to the basics of creating and managing VMs in OpenShift Virtualization. You will see how the web console guides you through the whole process and how easy it is to review VM properties and do some basic customization. In the next lab you will customize the VMs a little bit further.
+このラボでは、OpenShift Virtualization における VM の作成と管理の基本について紹介します。Web コンソールがプロセス全体を通してどのようにあなたをガイドするか、そして VM のプロパティを確認し、基本的なカスタマイズを行うことがいかに簡単であるかを確認します。その次のラボでは、VM をもう少しカスタマイズします。
 
-Among other things, this lab will show two methods for provisioning virtual machines, however, there are many different ways, and they are not limited to just what is shown here. All VM provisioning methods work with all supported operating systems.
+このラボでは、VM をプロビジョニングするための 2 つの方法を紹介しますが、他にも様々な方法があり、ここで紹介する方法だけに限られるわけではありません。すべての VM プロビジョニング方法は、サポートされているすべてのゲスト OS で動作します。
 
-Creating virtual machines is one of the most frequently accomplished tasks for a virtualization administrator. This section will walk through the process of creating a new virtual machine using a pre-created template. As the virtualization administrator, you have the ability to create your own templates that use guest operating system disks with your organization's customizations, preferred VM sizing options, and additional customization options using cloud-init or sysprep.
-
-In this lab, you become familiar with running virtual machines (VMs) on Red Hat^(R)^ OpenShift^(R)^ Container Platform. You create a new virtual machine based on a bootable operating system disk image provided in the default configuration of OpenShift Virtualization.
+VM 作成は、管理者にとって最も頻繁に実行するタスクの1つです。このセクションでは、事前に作成されたテンプレートを使用して新しい VM を作成するプロセスを説明します。管理者であれば、組織のカスタマイズ、好みの VM サイジングオプション、cloud-init または sysprep を使用した追加カスタマイズオプションを使用して、ゲスト OS ディスクを使用する独自のテンプレートを作成することができます。
 
 .Goals
-* Create a new virtual machine
-* Access the VM console
-* Gain experience using the VM console
+* 新しい VM を作成する
+* VM コンソールにアクセスする
+* VM コンソールの使用経験を積む
 
-== Create a new Project
+== 新しい Project の作成
 
-Like other objects in OpenShift, Projects, which are an abstraction for Kubnernetes namespaces, are the boundaries for permissions and other aspects of using and manaing the resources. Creating a Project is an important first step for any deployment.
+OpenShift の他のオブジェクトと同様に、Kubnernetes の Namespace を抽象化した Project は、パーミッションやリソースを使用・管理するための境界となります。Project の作成はあらゆるワークロードをデプロイする際の重要な第一歩です。
 
-. Browse to *Virtualization* -> *VirtualMachines* using the left navigation menu:
+. 左メニューの *Virtualization* -> *VirtualMachines* に移動します。
 +
 image::images/Create_VM_PVC/01_Left_Menu.png[Navigation Menu,136,266]
 +
 [NOTE]
 ====
-The *Virtualization* tab is available only when Red Hat OpenShift Virtualization is installed and properly configured.
+*Virtualization* メニューは、OpenShift Virtualization がインストールされ、適切に設定されている場合に使用できます。
 ====
 
-. Examine the *VirtualMachines* dashboard that appears. There are currently several VMs listed, but are not turned on:
+. 表示される *VirtualMachines* ダッシュボードを確認します。いくつかの VM がリストされていますが、いずれもパワーオンになっていません。
 +
 image::images/Create_VM_PVC/51_vm_list.png[]
 
-. Before creating a VM we need to create a new project. Virtual machines are deployed to a specific project, or namespace, where, by default, users without permission to the namespace cannot access, manage, or control them. Administrators can access all projects, and therefore view all virtual machines, however regular users must be given access to projects as needed.
+. VM を作成する前に、新しい Project を作成します。一般的に VM は特定の Project にデプロイされ、その Project へのアクセス権限を持たないユーザからは、VM にアクセス、管理、制御はできません。クラスタ管理者はすべての Project にアクセスできるため、すべての VM を見ることができます。
 +
-.. Click *Project: All Projects* and then click *Create Project*.
+.. *Project: All Projects* をクリックし、*Create Project* をクリックします。
 +
 image::images/Create_VM_PVC/50_create_new_project.png[]
-.. In the *Name* field, type `vmexamples` to name the project, then click *Create*.
+.. *Name* フィールドに `vmexamples` と入力して Project 名を付け、*Create* をクリックします。
 +
 image::images/Create_VM_PVC/03_Create_Project.png[]
 
-== Create a Linux virtual machine
-
-. From the Virtual Machines inventory, click *Create VirtualMachine*
+== Linux 仮想マシンの作成
+. *VirtualMachines* メニューから *Create VirtualMachine* をクリックします。
 +
 image::images/Create_VM_PVC/53_create_vm_button.png[]
-
-. The wizard will appear showing the available pre-defined VM templates. 
+. ウィザードが表示され、利用可能な定義済みの VM テンプレートが表示されます。
 +
-Reviewing the list of available templates you’ll notice that some have a blue badge which indicates "Source available". These are templates which are using the automatically downloaded and stored template disks reviewed in the previous page. If you were deploying in your own environment, you have the option of preventing these from being created and/or removing those source disks, followed by creating and uploading custom disks for your organization.
+利用可能なテンプレートのリストを確認すると、"Source available" を示す青いバッジが付いているものがあることに気づくでしょう。これらは、自動的にダウンロードされ保存されたテンプレート・ディスクを使用しているテンプレートです。自分の環境にデプロイする場合、これらのソース・ディスクが作成されないようにしたり、削除したりするオプションがあります。
 +
 image::images/Create_VM_PVC/04_Create_VM_Templates.png[]
-
-. Select the *Fedora VM* tile, and a dialog opens.
+. *Fedora VM* をクリックすると、ダイアログが開きます。
 +
 image::images/Create_VM_PVC/05_Create_VM_Quick.png[]
-
-. Change the name to `fedora01` and press *Quick create VirtualMachine*:
+. 名前を `fedora01` に変更し、*Quick create VirtualMachine* をクリックします。
 +
 image::images/Create_VM_PVC/05_Create_VM_Quick_Name.png[]
-
 +
-. After a few seconds, expect to see the VM is `Running`. During this time, the storage provider has cloned the template disk so that it can be used by the newly created virtual machine. The amount of time this takes will depend on the storage provider.
+. 数秒後、作成した VM が `Running` であることが確認できるでしょう。この間に、ストレージ・プロバイダは新しく作成された VM で使用できるよう、テンプレート・ディスクをクローンしいます。この作業にかかる時間は、ストレージ・プロバイダによって異なります。
 +
 image::images/Create_VM_PVC/06_Fedora_Running.png[]
 
-. After the VM is created, examine the *Events* tab to see some details of the process. If there are any issues with the creation of the VM, they will show up on this tab as well.
+. VM が作成されたら、作成のプロセスの詳細を確認するために *Events* タブを見てみましょう。もし VM の作成に問題があっても、このタブに表示されます。
 +
 image::images/Create_VM_PVC/09_Fedora_Events.png[]
 +
-* A _DataVolume_ is created. _DataVolumes_ are used to manage the creation of a VM disk, abstracting the clone or import process onto OpenShift native storage during the virtual machine's creation flow.
-* The _VM_ is started.
-
-. Click the *Details* tab to obtain information related to the VM. Note that for this template, the default is 1 CPU and 2 GiB of memory. As the administrator, you can create templates that customize the default configuration of virtual machines.
+* _DataVolume_ が作成されます。_DataVolumes_は VM ディスクの作成を管理するために使われ、VM 作成のフローにおいてクローンやインポートの処理を OpenShift の永続ストレージ上に抽象化しています。
+* _VM_ が起動します。
+. VMに関する情報を取得するには、*Details* タブをクリックします。このテンプレートでは、デフォルトで 1 CPU と 2GiB メモリであることを確認してみましょう。管理者は、VM のデフォルト構成をカスタマイズして新しいテンプレートを作成できます。
 +
-The IP address of the virtual machine on the software-defined network (SDN) is also displayed here, along with information about the boot order, workload profile, the cluster node hosting the virtual machine, and more.
+SDN (Software-defined Network) 上の VM の IP アドレスはここで表示されます。ブートオーダー、ワークロードプロファル、VM が稼働するノードなどの情報もここに表示されます。
 +
 image::images/Create_VM_PVC/10_Fedora_Details.png[]
 
-== Access the virtual machine console
+== 仮想マシンコンソールへのアクセス
 
-. Click the *Console* tab to access the VM's console:
+. VM のコンソールにアクセスするには、*Console* タブをクリックします。
 +
 image::images/Create_VM_PVC/13_Fedora_Console.png[]
 
-. Click *Guest login credentials* to see the password generated for the `fedora` user. This is only visible when the VM has been customized, which is done by default with this template, using OpenShift Virtualization to set the password using cloud-init.
+. `fedora` ユーザ用に生成されたパスワードを見るには、*Guest login credentials* をクリックします。 これはテンプレートで cloud-init を使ってパスワードをカスタマイズする場合に表示されます。
 +
 image::images/Create_VM_PVC/14_Fedora_Console_Show_Password.png[]
 
-. Log in to the VM using the `fedora` user and the indicated password.
+. `fedora` ユーザーと表示されたパスワードを使用して VM にログインします。
 +
 [IMPORTANT]
-You can click on `Paste` to paste the password after copying it.
+パスワードをコピーした後、`Paste` をクリックして貼り付けることができます。
 +
 [IMPORTANT]
-If the `Paste` functionality is not working, take into consideration that the console input is using US keymap. One small trick is to write in the login the password to ensure you are writing the proper characters (specifically that the `-` character is correct).
+もし `Paste` 機能が動作しない場合は、コンソール入力が US キーマップを使用していることを確認してください。ちょっとしたコツとしては、ログイン時にパスワードを書き込んで、適切な文字（特に `-` 文字が正しいこと）を書き込んでいることを確認することです。
 
-. After you log in, run the `ip a` command to display the interfaces and IP addresses:
+. ログインしたら、`ip a` コマンドを実行してインターフェースと IP アドレスを表示します。
 +
 image::images/Create_VM_PVC/15_Fedora_Network.png[]
 +
-Since this network adapter is connected to the SDN, the IP address assigned is an internal IP address used by the _KVM hypervisor_ and is not an externally accessible IP. This IP will not change even if the VM is live migrated to a different node and the external IP where the VM is connected to the SDN changes.
+このネットワークアダプタは SDN に接続されているので、割り当てられた IP アドレスは _KVM hypervisor_ によって使われる内部 IP アドレスであり、外部からアクセス可能な IP ではありません。この内部 IP は、VM が異なるノードに Live Migrationさ、外部 IP が変更されたとしても、変わりません。
 
-. Run `lsblk` to display the list of disks and their capacities and free space:
+. `lsblk` を実行してディスクのリストと容量、空き領域を表示します。
 +
 image::images/Create_VM_PVC/16_Fedora_Disk.png[]
 +
-* `/dev/vda` is the disk created during the VM creation and is the size specified at creation time.
-* `/dev/vdb` is used for `cloud-init` required data (for example, to configure the `fedora` user password). This disk can be removed after the VM has been created.
+* `/dev/vda` は VM の作成時に作成されたディスクで、作成時に指定されたサイズです。
+* `/dev/vdb` は `cloud-init` に必要なデータ (例えば、`fedora` ユーザーのパスワードを設定するため) に使用されるものです。このディスクは VM の作成後に取り外すことができます。
 
-. Examine the number of CPUs and amount of memory associated with the VM (which match the `flavor` specified during creation), using the `nproc` and `free -m` commands:
+. `nproc` コマンドと `free -m` コマンドを使用して、VM に関連付けられた CPU の数とメモリの量を調べ、作成時に指定した `flavor` と一致することを確認します。
 +
 image::images/Create_VM_PVC/17_Fedora_CPU_Memory.png[]
 
-. To review the guest customization, mount the `cloud-init` disk:
+. ゲストのカスタマイズを確認するには、`cloud-init` ディスクをマウントします。
 +
 image::images/Create_VM_PVC/21_Fedora01_Cloud_Init.png[]
 
-. The instance is running the guest agent to surface information about the guest OS to the hypervsior, along with coordinating tasks such as disk quiescing for snapshots.
+. このインスタンスはゲストエージェントを実行しています。ゲストエージェントは、スナップショット時のディスク静止 (quiescing) などのタスクを連携するだけでなく、ゲスト OS に関する情報をハイパーバイザーに提示しています。
 +
 image::images/Create_VM_PVC/19_Fedora_Agent.png[]
 
-. Click the *Overview* tab to show the information obtained from the guest VM, such as the disk utilization, along with seeing resource utlization information:
+. *Overview* タブをクリックすると、ディスク使用率などゲスト VM から取得した情報が表示され、リソースの使用率情報も表示されます。
 +
 image::images/Create_VM_PVC/19_Fedora_Agent_Details.png[]
 +
-* Hostname
-* Operating system version and timezone information
-* Active users
-* Utilization: CPU, Memory, Storage and Network.
+* ホスト名
+* OS バージョンとタイムゾーン
+* アクティブユーザ
+* 使用率 : CPU, メモリ, ストレージ, ネットワーク
 
-. You can navigate to the *Metrics* tab to obtain more information about the usage, including being able to specify the time range.
+. *Metrics* タブに移動すると、時間範囲を指定できるなど、使用状況に関する詳細な情報を得ることができます。
 +
 image::images/Create_VM_PVC/19_Fedora_Metrics.png[]
 
 
 
-== Live migrate a virtual machine
+== 仮想マシンの Live Migration
 
-In this section, we will migrate the VM from one OpenShift node to another without shutting down the VM. Live migration requires `ReadWriteMany` (RWX) storage so that the VM disks can be mounted on both the source and destination nodes at the same time. OpenShift Virtualization, unlike other virtualization solutions, does not use monolithic datastores mounted to each cluster member that hold many VM disks for many different VMs. Instead, each VM disk is stored in its own volume that is only mounted when and where it's needed. 
+このセクションでは、VM をシャットダウンせずに別のノードへ移行します。Live Migration には `ReadWriteMany` (RWX) ストレージが必要で、VM のディスクを移行元と移行先の両方のノードで同時にマウントできるようにします。OpenShift Virtualization は、他の仮想化ソリューションとは異なり、全てのクラスタメンバーが常時アクセス可能なモノリシックなデータストアは使いません。各 VM ディスクは個々のボリュームに格納され、必要なときに必要なノードにのみマウントされるようになっています。
 
-. Navigate to the *Details* tab to see where the worker node is running:
+. *Details* タブに移動し、VM が稼働している Worker ノードを確認します。
 +
 image::images/Pods_Migration/17_VM_Info_Node.png[]
 
-. Using the menu *Actions*, press *Migrate*
+. *Actions* メニューから、*Migrate* をクリックします。
 +
 image::images/Pods_Migration/19_VM_Dialog_Migrate.png[]
 
-. After a few seconds, the VM will change the status to `Migrating`. A few seconds later, it will return to the `Running` status, but on a different node. The VM has been successfully live migrated!
+. 数秒後、VM のステータスが `Migrating` に変わります。数秒後にまた `Running` に変わりますが、別のノードで稼働しています。すなわち、VM は正常に Live Mgration されました。
 +
 image::images/Pods_Migration/21_Migrated.png[]
 
-== [Optional] Controlling virtual machine state
+== [オプション] 仮想マシンの状態の制御
 
-As a user with permission to access virtual machines, you can stop, start, restart, pause, and unpause virtual machines from the web console.
+VM へのアクセス権限を持つユーザーは、Web コンソールから VM を停止、起動、再起動、一時停止、および一時停止解除といった制御ができます。
 
-. In the left menu, go back to *Virtualization* -> *VirtualMachines*:
+. 左メニューで *Virtualization* -> *VirtualMachines* に戻ります。
 
-. Select the _Virtual Machine_ `fedora02` from the list.
+. リストから _Virtual Machine_ `fedora02` を選択します。
 
-. Press the top-right dropdown, *Actions*, to list the available 
-options:
+. *Actions* メニューをクリックし、利用可能なオプションを表示します。
 +
 image::images/Pods_Migration/30_VM_Actions_List.png[]
 +
-.. *Stop*: Starts a graceful shutdown of the _Virtual Machine_.
-.. *Restart*: This will send a signal to the operating system to reboot the _Virtual Machine_. Guest integrations are needed for this to work properly.
-.. *Pause*: The process is frozen without further access to CPU resources and I/O, but the memory used by the VM at the hypervisor level will stay allocated.
+.. *Stop*: VM をグレイスフルにシャットダウンします。
+.. *Restart*: VM を再起動するシグナルを OS に送信します。
+.. *Pause*: ハイパーバイザのレベルで、VM が使っているメモリは保ったまま VM プロセスを一時停止します。
 
-. Press *Stop* and wait till the _Virtual Machine_ is in state `Stopped`.
+. *Stop* をクリックして、VM が `Stopped` になるまで待ちます。
 +
 image::images/Pods_Migration/31_VM_Stopped.png[]
-. Clicking on *Actions*, the option *Start* appears, and the options *Restart* and *Pause* are greyed out. 
+. *Actions* メニューを見ると、*Start* が表示され、*Restart* と *Pause* はグレーアウトされていることがわかります。
 +
 image::images/Pods_Migration/32_VM_Actions_List_Stopped.png[]
 
-. Press *Start*, and wait for the `Running` status.
+. *Start* をクリックし、`Running` になるまで待ちます。
 
-. Using the *Actions* menu, press the *Pause* option. The _Virtual Machine_ state will change to `Paused`.
+. *Actions* メニューで *Pause* をクリックします。VM のステータスが `Paused` に変わります。
 +
 image::images/Pods_Migration/33_VM_Actions_Paused.png[]
 
-. Unpause the _Virtual Machine_ using *Actions* and the option *Unpause*.
+. *Actions* メニューで *Unpause* をクリックし、VM の一時停止を解除します。
 
 
+== [オプション] Overview ダッシュボード
 
-== [Optional] Virtualization Overview dashboard
+Overview ダッシュボードは、OpenShift Virtualization と VM の健全性に関するステータス情報と共に、使用されている VM とリソースのクラスタレベルのビューを提供します。これは、OpenShift Virtualization で起こっていることをいち早く把握する必要のある管理者にとって便利です。
 
-The overview dashboard provides a cluster-level view of virtual machines and resources used, along with status information for the health of OpenShift Virtualization and virtual machines. It is a useful starting point for administrators who want a quick and high-level view of what's happening with OpenShift Virtualization.
-
-. From the left navigation menu, browse to *Virtualization* -> *Overview*
+. 左メニューから *Virtualization* -> *Overview* をクリックします。
 +
 image::images/Create_VM_PVC/create_overview_413.png[]
 +
-This overview page provides the OpenShift Virtualization administrator a global overview of the virtual machines in the cluster. A normal user would only see the VMs in his/her own project.
+この Overview は、OpenShift Virtualization 管理者にクラスタ内の VM のグローバルな概要を提供します。一般ユーザーは、自分の Project 内の VM だけを見ることができます。
 +
 [NOTE]
 ====
-Don't forget to check out the `Getting started resources` panel and click the "View all quick starts" link there to access more information about OpenShift virtualization, including Quick Starts which provide many guided walkthroughs including how to create a VM and upload a custom boot source for your virtual machines. 
-
+`Getting started resources` パネルにある、"View all quick starts" リンクをクリックすると、VM の作成方法やカスタムブートソースのアップロード方法など、多くのガイド付きウォークスルーを提供する Quick Starts を含む、OpenShift Virtualization に関するより多くの情報にアクセスできます。
 image::images/Create_VM_PVC/create_quickstarts413.png[]
 ====
 
-. Review the top consumers
+. トップコンシューマのレビュー
 +
-Use the tabs across the top to view more about the virtualization resources in the cluster. For instance, the "Top consumers" tab shows the VMs which are "top consumers" of various resources, including CPU, memory, and storage. Note that in a newly created cluster, there are no consumers, so there is little to see in the beginning. You might also want to dig deeper into metrics by clicking on "View virtualization dashboard" link. That brings you to the KubeVirt Metrics Dashboard with more data and graphs.
-+
-[IMPORTANT]
-If you don't see any resources here, no VMs have been started in your lab. Revisit this page after this segment to see the overview details.
+クラスタ内の仮想化リソースの詳細を表示するには、上部のタブを使用します。たとえば、"Top consumers" タブには、CPU、メモリ、ストレージなど、さまざまなリソースの "トップ・コンシューマ" である VM が表示されます。新しく作成されたクラスタにはコンシューマが存在しないため、最初はほとんど表示されないことに注意してください。また、"View virtualization dashboard" リンクをクリックして、メトリクスをさらに深く掘り下げることもできます。KubeVirt Metrics Dashboard が表示され、より多くのデータとグラフが表示されます。
 +
 image::images/Create_VM_PVC/create_overview_consumers413.png[]

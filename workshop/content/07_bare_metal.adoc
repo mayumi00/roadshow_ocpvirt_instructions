@@ -2,142 +2,107 @@
 :toc2: 
 
 :numbered:
+= ベアメタル OpenShift
 
-== Introduction
+== はじめに
 
-In this lab, you will review the environment used during this workshop, including an overview of OpenShift deployed to bare metal hosts.
+このラボでは、ベアメタルホストにデプロイされた OpenShift の概要を含め、このワークショップ使用している環境を確認します。
 
-.Goals
-* Explore the nodes and machines in your *Red Hat OpenShift Container Platform* cluster
+.ゴール
+* *Red Hat OpenShift Container Platform* クラスタのノードと *Machines* を探索する。
 
-In this section, you will explore the Red Hat OpenShift environment provided for you. This environment runs on bare metal hosts in the Equinix cloud. You will understand how the nodes in this cluster are configured and which hardware capabilities they have.
+ここでは、あなたに提供された Red Hat OpenShift 環境を探ります。この環境は、Equinix cloud のベアメタルホスト上で実行されています。このクラスタのノードがどのように構成され、どのようなハードウェアの能力を備えているか理解します。
 
-=== Supported Platforms
+=== サポートされるプラットフォーム
 
-* Today OpenShift Virtualization is fully supported with self-managed _bare metal servers_ on-premises or at a similar location, such as a co-lo. The lab you're using today is an OpenShift cluster deployed to Equinix.
+* 現在、OpenShift Virtualization は、オンプレミスのベアメタルサーバ、または、共同のクラウド環境のような場所でユーザが管理するベアメタルサーバでサポートされています。今日使用しているラボは、Equinix のベアメタルサーバにデプロイされた OpenShift クラスタです。
 
-* Amazon Web Services (AWS) bare metal instances are tech preview. See link:https://access.redhat.com/articles/6409731[Deploy OpenShift Virtualization on AWS Bare Metal Nodes for details]. 
+* OpenShift 4.14 時点で、Amazon Web Services (AWS) のベアメタルインスタンスはサポートされています。link:https://docs.openshift.com/container-platform/4.14/virt/install/preparing-cluster-for-virt.html#supported-platforms_preparing-cluster-for-virt[Preparing your cluster for OpenShift Virtualization]. 
 
-* IBM Cloud Bare Metal Servers are tech preview. See link:https://access.redhat.com/articles/6738731[Deploy OpenShift Virtualization on IBM Cloud Bare Metal Nodes for details].
-
-[NOTE]
-Installing OpenShift Virtualization on AWS bare metal instances or on IBM Cloud Bare Metal Servers is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
-
-=== Requirements for OpenShift Virtualization
-
-Before you install OpenShift Virtualization for Red Hat OpenShift Container Platform, make sure that your Red Hat OpenShift Container Platform cluster meets the following requirements.
-
-* CPU requirements
-** Supported by Red Hat Enterprise Linux (RHEL) 8
-** Support for Intel 64 or AMD64 CPU extensions
-** Intel VT or AMD-V hardware virtualization extensions enabled
-** NX (no execute) flag enabled
-
-* Storage requirements
-** Supported by OpenShift
-** A CSI provisioner is strongly encouraged
-** `ReadWriteMany` (RWX) PVCs are required for live migration
-** A CSI provisioner that supports accelerated volume creation via CSI clones or snapshots makes creating VMs from templates much faster. If one is not available, OpenShift Virtualization will fallback to using a host copy
-
-* OpenShift cluster node requirements
-** Red Hat Enterprise Linux CoreOS (RHCOS) installed on worker nodes
-** CPU, memory, and network capacity sufficient to host your virtual machine workload
-
-Review https://docs.openshift.com/container-platform/4.12/virt/install/preparing-cluster-for-virt.html[the documentation] for specific requirements and guidance on hardware for OpenShift Virtualization.
+* OpenShift 4.14 時点で、IBM Cloud Bare Metal Servers はテクノロジープレビューです。link:https://access.redhat.com/articles/6738731[Deploy OpenShift Virtualization on IBM Cloud Bare Metal Nodes for details].
 
 [NOTE]
-If your cluster uses worker nodes with different CPUs, e.g. Intel and AMD, live migration failures can occur because different CPUs have different capabilities. 
+IBM Cloud Bare Metal Servers での OpenShift Virtualization の使用は、テクノロジープレビュー機能です。テクノロジープレビュー機能は、Red Hat のプロダクション環境でのサービスレベル契約 (SLAs) でサポートされておらず、機能的に完全でない可能性があります。Red Hat はこれらをプロダクション環境で使用することを推奨しません。これらの機能は、今後リリースされる製品機能への早期アクセスを提供するもので、お客様は開発プロセスにおいて機能をテストし、Red Hat にフィードバックを提供することができます。
 
-== Review Red Hat OpenShift Cluster
+=== OpenShift Virtualization の要件
 
-When deployed using the installer provisioned infrastructure (IPI) method, OpenShift uses https://metal3.io/[Metal3] to manage the hardware using the out-of-band management controller. This results in the hardware being represented in three different ways in the cluster:
+Red Hat OpenShift Container Platform に OpenShift Virtualization をインストールする前に、Red Hat OpenShift Container Platform クラスタが以下の要件を満たしていることを確認してください。
 
-. https://docs.openshift.com/container-platform/4.13/nodes/index.html[`Node`] - The node is viewed and used by the Kubernetes scheduler. This is the object which represents the usable resources in the cluster.
-. https://docs.openshift.com/container-platform/4.13/machine_management/index.html[`Machine`] - An object managed by an infrastructure provider. In this lab, and when using OpenShift Virtualization, this is a physical server that is abstracted by the Metal3 Operator. These are grouped and managed as a set via the `MachineSet` paradigm.
-. `BareMetalHost` - This is the lowest level and direct interaction with the management of the physical server.
+* CPU 要件
+** Red Hat Enterprise Linux (RHEL) 8 でのサポート
+** Intel 64 または AMD64 Extention のサポート
+** Intel VT または AMD-V ハードウェア仮想化拡張機能が有効
+** NX (no execute) bit が有効
 
-=== Review Nodes and Machines
+* ストレージ要件
+** OpenShift をサポート
+** Live Migration をする場合は `ReadWriteMany` (RWX) PVC が必要
+** CSI プロビジョナー (CSI ドライバ) を強く推奨
+** CSI プロビジョナーによるクローンおよびスナップショットが利用可能な場合は、ストレージ側の高速なデータコピーが可能となるため、テンプレートからの VM 作成がより早くなります。もし利用できない場合は、OpenShift Virtualization はホストベースのコピーで行います。
 
-Almost every interaction with Red Hat OpenShift can be done in the OpenShift Console. The console is a full-featured web application that allows administrators and users alike to use the platform in a guided manner. Wizards are provided for most tasks which makes it easy to administer the system.
+* OpenShift クラスタノード要件
+** Red Hat Enterprise Linux CoreOS (RHCOS) がインストールされた Worker ノード
+** 仮想マシンのワークロードをホストするのに充分な CPU、メモリ、ネットワーク帯域
 
-// WKTBD: Replace with actual password from variable
-. Navigate to %ocp_url% and login with user `admin` and the password `%ocp_password%`.
+OpenShift Virtualization のハードウェアに関する特定の要件とガイダンスについては、 https://docs.openshift.com/container-platform/4.14/virt/install/preparing-cluster-for-virt.html[ドキュメント] を確認してください。
 
-. From the navigation menu, select *Compute* -> *Nodes*:
+[NOTE]
+例えば Intel と AMD など、異なる CPU が Worker ノードで使用されている場合、CPU が持つ機能が異なるため、Live Migration に失敗する可能性があります。
+
+== Red Hat OpenShift クラスタのレビュー
+
+インストーラ・プロビジョニング・インフラストラクチャ (IPI) 方式を使用してデプロイする場合は、OpenShift は https://metal3.io/[Metal3] を使って out-of-band な管理コントローラを使ってハードウェアを管理します。この結果、ハードウェアはクラスタ内で 3 つの異なるリソースで表現されます。
+
+. https://docs.openshift.com/container-platform/4.14/nodes/index.html[`Node`] - Kubernetes スケジューラによって表示、使用されます。これはクラスタ内で使用可能なリソースを表すオブジェクトです。
+. https://docs.openshift.com/container-platform/4.14/machine_management/index.html[`Machine`] - インフラストラクチャプロバイダーによって管理されるオブジェクトです。このラボでは、OpenShift Virtualization を使用する場合、Metal3 Operator によって抽象化された物理サーバを表します。`Machine` は `MachineSet` によってグループ化され、セットで管理されます。
+. `BareMetalHost` - 物理サーバの管理で最もローレベルで、直接的なインタラクションです。
+
+=== Nodes and Machines のレビュー
+
+Red Hat OpenShift とのほぼすべてのやり取りは、OpenShift Web コンソールで行うことができます。Web コンソールは管理者もユーザーも同様に使用する、ガイド付きのフル機能の Web アプリケーションです。ほとんどのタスクにウィザードが用意されており、システムの管理を容易にします。
+
+. %ocp_url% にアクセスし、ユーザ `admin` とパスワード `%ocp_password%` でログインします。
+
+. 左メニューから *Compute* -> *Nodes* に移動します。
 +
 image::images/Install/Compute_Nodes.png[]
 +
-There are three control plane nodes and three worker nodes in the OpenShift 4 Cluster. In addition, the `ipmi` (Intelligent Platform Management Interface) is being used to manage the bare metal nodes.
+3 つの Control Plane ノードと、3 つの Worker ノードが確認できます。それぞれの管理用アドレスには `ipmi` (Intelligent Platform Management Interface) が使われています。
 +
-A node is a virtual or bare metal machine in an OpenShift cluster. Worker nodes host virtual machines and other workloads. The control plane nodes run services that are required to control and manage the OpenShift cluster.
+一般的に、OpenShift クラスタノードは仮想マシンまたはベアメタルサーバです。Worker ノードは VM やその他のワークロードをホストします。Control Plane ノードは OpenShift クラスタの制御と管理に必要なサービスを実行します。
 
-. Click on one of the worker nodes to obtain resource information about the node:
+. Worker ノードのいずれかをクリックして、ノードに関するリソース情報を取得します。
 +
 image::images/Install/Worker0_Information.png[]
 +
-The *Overview* tab is showing useful information about the utilization of the resources, such as CPU and memory. It also shows all the applications (*Pods*) that are running inside on this node.
+*Overview* タブには、CPU やメモリなどのリソースの使用状況に関する有益な情報が表示されます。また、このノード内で実行されている全てのアプリケーション (*Pods*) も表示されます。
 
 [NOTE]
-At least one physical node is required for OpenShift Virtualization, "nesting" and emulation are not supported. However, other nodes in the cluster can be virtual machines, for example control plane and infrastructure nodes.
+OpenShift Virtualization には少なくとも 1 つのベアメタル Worker ノードが必要です。"Nesting" (仮想マシンノードの上で仮想マシンを実行する) やエミュレーションはサポートされていません。一方で、Control Plane ノードや Infra ノードなどについては、仮想マシンにすることは可能です。
 
-. Navigate to the tab *Details* to obtain more information about the operating system.
+. *Details* タブに移動して、ノードの OS の詳細情報を取得します。
 +
 image::images/Install/Worker0_Details.png[]
 
-=== Review Bare Metal hosts
+=== ベアメタルホストのレビュー
 
-When using `Baseboard Management Console (BMC)` it is possible to manage the nodes using the *Red Hat OpenShift* console. 
+ベースボード管理コントローラ `(BMC)` を使用している場合、OpenShift Web コンソールを使用してノードを管理することができます。
 
-. Select *Compute* -> *Bare Metal Hosts*:
+. *Compute* -> *Bare Metal Hosts* に移動します。
 +
 image::images/Install/BMHosts.png[]
 +
-During installation, the *Control Plane* nodes are provisioned by the OpenShift Container Platform installation program (that is why the status is `Externally provisioned`) and when the control plane is ready, the *Worker* nodes are provisioned by cluster itself (hence the status `Provisioned`) and joined to the cluster. While not a part of this lab, it is possible to scale up the cluster by adding new hosts using the *Add Host* button.
+インストール中、*Control Plane* ノードは OpenShift Container Platform インストーラによってプロビジョニングされます。ステータスが `Externally provisioned` になっているのはそのためです。クラスタコントロールプレーンの準備ができたら、次は *Worker* ノードがクラスタ自身によってプロビジョニングされます。ステータスが `Provisioned` になっているのはそのためです。 +
+このラボではありませんが、*Add Host* ボタンを使用して新しいホストを追加することで、クラスタをスケールすることができます。
 
-. Click on any of the worker nodes to obtain information about the physical (bare metal) node:
+. いずれかの Worker ノードをクリックし、ベアメタルノードに関する情報を取得します。
 +
 image::images/Install/Worker0_BMhost.png[]
 +
-The information shown is similar to the *Nodes* one, with the exception is providing information related to the hardware and the physical status of the bare metal node. Using the *Actions* menu, it is possible to manage aspects of the bare metal host, such as restarting or stopping the system using `BMC`.
+表示される情報は *Nodes* と似ていますが、ベアメタルノードのハードウェアと物理的なステータスに関連する情報が表示されます。*Actions* メニューを使用すると、`BMC` を使用してシステムの再起動や停止など、ベアメタルホストの状態を管理することができます。
 
-. Explore the other tabs in the interface to see more details about the hosts, including the network interfaces and disks. Additionally, the host can be *Deprovisioned*, which will result in it being removed from the cluster, RHCOS removed, and the machine marked as ready to configure.
-
-////
-== The OpenShift Virtualization Operator
-
-Due to the time constraints of this session, the OpenShift Virtualization Operator has been preinstalled for you. You can navigate to *Operators* -> *Installed Operators* to get the list of the operators installed to the cluster. Ensure *All Projects* is selected to list Operators across all namespaces and type `virtualization` in the search box to filter the list.
-
-For this workshop we'll be focusing on two Operators: OpenShift Virtualization and the Migration Toolkit for Virtualization.
-
-image::images/Install/environment_installed_operators.png[]
-
-
-=== Examine the OpenShift Virtualization Operator
-
-. Click on *OpenShift Virtualization* from the operator installed list.
-
-. Click the *Details* tab to view information about the Operator:
-+
-image::images/Install/environment_operator_details.png[]
-+
-The Operator provides two custom resource definitions (CRDs) to extend the Kubernetes API: the OpenShift Virtualization deployment and the Host Path Provisioner. Installing the Operator is only the first step to deploying OpenShift Virtualization, an instance of the OpenShift Virtualization Deployment must also be created.
-
-. Click the *OpenShift Virtualization Deployment* tab, then click the *Create HyperConverged* button:
-+
-image::images/Install/environment_operator_crd.png[]
-+
-[NOTE]
-OpenShift Virtuailzation, even when deployed to a cluster with OpenShift Data Foundation or another Kubernetes-native storage solution, is not a hyperconverged product, which makes the Kubernetes object name misleading. This naming is the result of the history of the upstream KubeVirt project and it's origins as a part of the "Kubernetes-native Infrastructure" meta-project.
-
-. Explore the configuration options for OpenShift Virtualization
-+
-This screen represents global configuration options for OpenShift Virtualization and can be used to enable/disable features of OpenShift Virtualization and VM capabilities. For example, scroll down then expand the menu item for *featureGates*. The *withHostPassthroughCPU* option is not enabled by default, however if you wanted to allow virtual machines to inhert the exact CPU features and capabilities of the physical node it's being hosted on then you would need to check this box.
-+
-image::images/Install/environment_operator_create.png[]
-+
-*IMPORTANT:* Do not click *Create* at the bottom of the form. This is unnecessary, OpenShift Virtualization has already been deployed to the lab cluster.
-////
+. ネットワークインターフェースやディスクの詳細を見るには、他のタブを探検してください。さらに、ホストは *Deprovisioned* することができ、クラスタから取り除かれ、RHCOS は削除され、マシンはまっさらな状態になります。
 
 == Summary
 
-In this lab, you became familiar with your Red Hat OpenShift Container Platform cluster and the hardware that makes up this environment.
+このラボでは、Red Hat OpenShift Container Platform クラスタと、この環境を構成するハードウェアについてよく学びました。

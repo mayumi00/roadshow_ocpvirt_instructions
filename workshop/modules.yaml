@@ -12,26 +12,26 @@ config:
       value: aio.example.com
 modules:
     01_welcome:
-        name: Welcome
+        name: ようこそ
     02_migrate_vms:
-        name: Migrating Virtual Machines
+        name: 仮想マシンの移行
     03_ocpv_basics:
-        name: OpenShift Virtualization Basics
+        name: OpenShift Virtualization の基礎
     04_thanks:
         name: Thank you and next steps
     05_ocpv_customization:
-        name: 'Optional: Customize Virtual Machines'
+        name: 仮想マシンのカスタマイズ
     06_windows_vm:
-        name: 'Optional: Windows Virtual Machines'
+        name: Windows 仮想マシン
     07_bare_metal:
-        name: 'Optional: Bare Metal OpenShift Overview'
+        name: ベアメタル OpenSHift の概要
     08_network_management:
-        name: 'Optional: Network Management'
+        name: ネットワーク管理
     09_storage_management:
-        name: 'Optional: Storage Management'
+        name: ストレージ管理
     10_backup_restore:
-        name: 'Optional: Backup and Restore'
+        name: バックアップとリストア
     11_metallb:
-        name: 'Optional: Exposing apps using MetalLB'
+        name: MetalLB を使ったアプリケーションの公開
     12_service_route:
-        name: 'Optional: Exposing apps using a Route'
+        name: Route を使ったアプリケーションの公開

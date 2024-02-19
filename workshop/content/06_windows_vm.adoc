@@ -20,7 +20,7 @@
 . 左メニューから *Virtualization* -> *VirtualMachines* に移動します。
 +
 image::images/Create_VM_PVC/01_Left_Menu.png[]
-. 現在の Project で稼働している VM が一覧表示されます。
+. 現在のプロジェクトで稼働している VM が一覧表示されます。
 +
 image::images/Create_VM_PVC/25_List_VMs.png[]
 . 右上のボタンの *Create* をクリックし、*From template* を選択します。

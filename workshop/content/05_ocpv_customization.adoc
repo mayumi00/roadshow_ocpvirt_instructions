@@ -31,7 +31,7 @@
 image::images/Create_VM_URL/00_VMs.png[]
 +
 [NOTE]
-前のページで作成した VM が表示されない場合は、パネルの左上隅にある Project の表示で、`vmexamples` を見ていることを確認してください。
+前のページで作成した VM が表示されない場合は、パネルの左上隅にあるプロジェクトの表示で、`vmexamples` を見ていることを確認してください。
 
 . 右上のドロップダウンで、*Create* -> *From template* をクリックします。
 +

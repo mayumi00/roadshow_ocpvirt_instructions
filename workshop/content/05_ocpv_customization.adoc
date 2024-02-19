@@ -1,143 +1,146 @@
 :scrollbar:
 :toc2:
 
-= Introduction to virtual machine customization
+= 仮想マシンのカスタマイズ
 
 :numbered:
 
-In this lab, we will customize a virtual machine at creation, including using a customized template disk hosted on an external web server, setting resource properties, and specifying the password configured by `cloud-init`.
+このラボでは、作成時に VM をカスタマイズしいます。外部の Web サーバに保管されているカスタマイズされたテンプレートディスクの使用、リソースプロパティを設定、そして `cloud-init` で設定するパスワードの変更などを行います。
 
-.Goals
-* Create VM from a QCOW2 image
-* Customize a VM using the Create Virtual Machine wizard
+.ゴール
+* QCOW2 イメージから VM を作成する。
+* VM の作成ウィザードを使って VM をカスタマイズする。
 
 [IMPORTANT]
 ====
-This section will customize a virtual machine at creation time, however if you're interested in modifying virtual machine configuration after creation, the same procedure and diaglogs apply to existing virtual machines.
+このセクションでは作成時に VM をカスタマイズしますが、作成後に VM の設定を変更する場合でも同じ手順とダイアログで適用できます。
 
-However, not all resources can be modified while the VM is powered on, i.e. "hot add/remove". Refer to the documentation for details about each resource type and whether it can be modified while the VM is running. Alternatively, the user interface will notify you if the VM needs to be restarted for a change to take effect.
+ただし、VM がパワーオン状態で全てのリソースを変更できるわけではありません。VM 実行中に変更できるリソースの種類の詳細は、ドキュメントを参照してください。また、変更を有効にするために VM を再起動する必要がある場合は、ユーザインターフェースで通知されます。
 ====
 
-== Customizing a virtual machine at creation
+== 作成時の仮想マシンのカスタマイズ
 
-You have already created a Fedora VM in the previous lab. This time you will customize the VM with a few different settings - for example, you will set a custom password for the `fedora` user.
+前のラボですでに Fedora VM を作成しました。今回は、いくつかの異なる設定で VM をカスタマイズします - 例えば、`fedora` ユーザーのカスタムパスワードを設定します。
 
 [NOTE]
-The `fedora` user is the default user configured by the https://fedoraproject.org/cloud/[Fedora Cloud image] used in this workshop. Templates created and used by your organization may use a different username or might use cloud-init or SysPrep to automatically join the guest operating system to an identity provider.
+`fedora` ユーザはこのワークショップで使用した https://fedoraproject.org/cloud/[Fedora Cloud イメージ] で設定されているデフォルトユーザです。
+実際にあなたの組織で使う場合は、使用するテンプレートによって異なるユーザ名かもしれませんし、`cloud-init` や `SysPrep` を使ってゲスト OS を IdP に参加させるかもしれません。
 
-. In the left menu, go back to *Virtualization* -> *VirtualMachines*:
+. 左メニューから *Virtualization* -> *VirtualMachines* をクリックします。
 +
 image::images/Create_VM_URL/00_VMs.png[]
 +
 [NOTE]
-If you do not see the VMs created on the previous page, double-check to make sure you're looking at the `vmexamples` project in the upper left corner of the panel.
+前のページで作成した VM が表示されない場合は、パネルの左上隅にある Project の表示で、`vmexamples` を見ていることを確認してください。
 
-. In the top right dropdown, select *Create* -> *From template*:
+. 右上のドロップダウンで、*Create* -> *From template* をクリックします。
 +
 image::images/Create_VM_URL/00_Create.png[]
 
-. From the pre-defined templates, select the *Fedora VM* tile:
+. 定義済みのテンプレートから、*Fedora VM* 選択します。
 +
 image::images/Create_VM_URL/00_Catalog.png[]
 
-. In the dialog that opens, click *Customize VirtualMachine*. 
+. ダイアログで、*Customize VirtualMachine* をクリックします。 
 +
 image::images/Create_VM_URL/00_Fedora.png[]
 
-. Customize Virtual Machine
+. 仮想マシンのカスタマイズ
 +
-Even though this template has a disk already available, we want to import a different disk from the external web server. This is one option for deploying VMs from a library of disks, though it may be slower than relying on the storage provider to offload a PVC clone for the disk. The QCOW2 disk image used here could also be imported to a PVC and used as a source disk for VM clones. See https://docs.openshift.com/container-platform/4.13/virt/virtual_machines/importing_vms/virt-importing-virtual-machine-images-datavolumes.html[the documentation] for more details on how to do this.
+このテンプレートにはすでに利用可能なディスクがありますが、外部 Web サーバから別のディスクをインポートしてみます。 +
+[TIP]
+この方法はディスクのライブラリから VM をデプロイする 1 つのオプションですが、ストレージ・プロバイダ側でディスクの PVC クローンをするよりも時間がかかるかもしれません。 +
+ここで使用する QCOW2 ディスクイメージを、PVC にインポートして VM クローンのソースディスクとして使うことも可能です。この方法については、 https://docs.openshift.com/container-platform/4.13/virt/virtual_machines/importing_vms/virt-importing-virtual-machine-images-datavolumes.html[ドキュメント] を参照してください。
 +
-.. Specify the name `fedora02`
-.. Under *Storage* section 
+.. Name `fedora02`
+.. *Storage* セクションを開いて 
 ... *Disk source*: `URL (creates PVC)`
 ... *URL*: `http://192.168.123.100:81/Fedora35.qcow2`
 ... *Disk size*: 30 GiB
 
 +
 image::images/Create_VM_URL/01_Create_VM_Boot_Source.png[]
-+
-Press *Next*
+*Next* をクリックします。
 
-. Review the *Overview* tab with the default configuration from the template
+. *Overview* タブでテンプレートのデフォルトを設定を確認します。
 +
 image::images/Create_VM_URL/02_Wizard_General.png[]
 
-. Click the link under *CPU | Memory* to adjust the resource allocation for the virtual machine. Change the number of CPUs to 2 and the memory to 4 GiB.
+. *CPU | Memory* のリンクをクリックし、VM のリソース割り当てを調整します。CPU を 2 に、メモリを 4 GiB に変更します。
 
-. Navigate to the *Scheduling* tab and review the options available without modifying them
+. *Scheduling* タブに移動し、オプションを確認してみましょう。変更は加えないようにしてください。
 +
 image::images/Create_VM_URL/02_Wizard_Scheduling.png[]
 +
-* A *node selector* is used to specify one or more cluster nodes that the VM is allowed to run on. These can be selected by name, label, or annotation.
-* *Tolerations* are used when a cluster node has a https://docs.openshift.com/container-platform/4.13/nodes/scheduling/nodes-scheduler-taints-tolerations.html[taint] applied. Taints are an indicator that only specific workloads, those with a toleration for the taint, should be allowed to run on the node. They are helpful when you have, for example, some nodes that have GPUs where you only want VMs that use a GPU to run on those nodes.
-* An *affinity rule* is used to indicate that a VM should be scheduled with, or not with in the case of an antiaffinity rule, other workloads.
-* The *dedicated resources* function is used when you want to, for example, assign a PCIe device to the virtual machine or allocate specific CPU cores to the VM.
-* By default, all VMs will use the _Live Migrate_ *eviction strategy*, which means that when a node is cordoned and drained for maintenance purposes, such as applying updates, the VM will be non-disruptively migrated to a different node. Alternatively, VMs can be configured to shutdown and do a cold migration or simply not migrate at all.
-* The *descheduler* is a feature of OpenShift that will periodically evaluate the VM and the host it's running on to determine if it should be migrated to another host. This could be for resource optimization reasons or because an affinity rule is being violated.
+* *Node selector* は VM の実行を許可する 1 つまたは複数のノードを指定するために使います。これらは、名前、Label、Annotation によって選択できます。
+* *Tolerations* はノードに https://docs.openshift.com/container-platform/4.13/nodes/scheduling/nodes-scheduler-taints-tolerations.html[Taint] が適用されている場合に使用できます。Taint は特定のワークロード (Taint の許容値を持つワークロード) のみがノード上で実行を許可されるべきであることを示すインジケータです。例えば、GPU を搭載したノードがあり、GPU を使用する VM のみをそのノード上で実行させたい場合に役立ちます。
+* *Affinity rule* は、VM が他のワークロードと一緒にノードにスケジュールされるべきか、そうでないかを示すために使います。
+* *Dedicated resources* は、例えば VM に PCIe デバイスを割り当てたり、特定の CPU コアを割り当てたい場合などに使用します。
+* *Eviction strategy* は、VM がノードから退避する際の振る舞いを指定します。デフォルトでは、全ての VM は _Live Migrate_ を使います。これは、アップデートの適用などメンテナンスのためにノードが cordon / drain される際に、VM は Live Migration を使って無停止で別のノードに退避します。VM を停止してノードを移動するオプションや、VM を停止するだけで一切移動しないオプションも選択可能です。
+* *Descheduler* は OpenShiftの 機能で、VM とそれが稼働しているノードを定期的に評価し、別のノードに移行すべきかどうかを判断する。移行が起きるときはリソースの最適化のためであったり、Affinity ruleに違反しているためであったりします。
 
-. Navigate to the *Network interfaces* tab and notice by default, a Virtual Machine is connected to the `Pod networking` (which is just OpenShift internal networking).
+. *Network interfaces* タブに移動します。デフォルトでは VM は `Pod networking` (OpenShift 内部ネットワーク) に接続されていることがわかります。
 +
 image::images/Create_VM_URL/03_Wizard_Networking.png[]
 
-. Click the three vertical dots icon to edit `default`, and review the default options:
+. `default` の右端にある 3 つのドットアイコンをクリックし、デフォルトのオプションを確認します。
 +
 image::images/Create_VM_URL/03_Wizard_Networking_Options.png[]
 +
-* The *model* indicates the type of network adapter that will be used. VirtIO is the paravirtual NIC, whereas e1000 and others are emulated devices.
-* *Network* is greyed out because there are no other networks available. In a future module of this workshop, we'll add an additional network for the VMs and use it.
-* *Type* indicates how the VM should be connected to the network. For the SDN, or _Pod networking_, this is set to `Masquerade`. For a VLAN network the `Bridge` setting is used.
-* For a newly created NIC, you have the option of customizing the *MAC address* assigned to it. It's greyed out here because we're editing an already created NIC.
+* *Model* は使用するネットワークアダプタのタイプを示します。VirtIO は準仮想化 (Paravirtual) NIC で、e1000 はエミュレートされたデバイスです。
+* *Network* は他のネットワークがないため、グレーで表示されています。この先のモジュールでは、VM 用にネットワークを追加するので、その際に利用できます。
+* *Type* は VM がどのようにネットワークに接続されるかを示します。SDN や _Pod networking_ の場合は `Masquerade` に設定されます。VLAN ネットワークの場合は `Bridge` に設定されます。
+* 新しく作成された NIC には、割り当てる *MAC address* をカスタマイズするオプションがあります。ここでは既に作成された NIC を見ているため、グレーアウトされています。
 +
-Since there are no other networks avaialble at this time, press *Cancel* to exit the dialog.
+この時点では利用可能な他のネットワークはないので、*Cancel* を押してダイアログを終了します。
 +
 [NOTE]
-If you would like to add/manage networks for virtual machines and see how to connect a virtual machine to a layer 2 (VLAN) network, choose the optional Network Management module from the workshop navigation menu.
+ネットワークを追加し、VM をレイヤー2 (VLAN) ネットワークに接続する方法を確認したい場合は、workshop のナビゲーションメニューから「ネットワークの管理」モジュールを受講してください。
 
-. Navigate to the *Disks* tab to see the devices allocated to the VM.
+. *Disks* タブに移動して、VM に割り当てられているデバイスを確認します。
 +
 image::images/Create_VM_URL/04_Wizard_Storage.png[]
 +
-It is possible to add new and modify the default disks before creating the VM. You can also modify the storage class and the boot source -- for example, to boot from an ISO -- and you can define the disk interface instead of using the default `virtio` interface.
+VM を作成する前に、新しいディスクを追加したり、デフォルトのディスクを変更したりすることができます。また、Storage Class やブートソース (例えば ISO からブートする) を変更したり、デフォルトの `virtio` インターフェースの代わりにディスクインターフェースを定義することもできます。
 
-. Click the three vertical dots icon to edit `rootdisk`, and review the default options:
+. `rootdisk` の右端にある 3 つのドットアイコンをクリックし、デフォルトのオプションを確認します。
 +
 image::images/Create_VM_URL/04_Wizard_Storage_settings.png[]
 +
-* The *PersistentVolumeClaim Size* will be the size of the disk attached to the VM. If the source of the disk is another PVC, it cannot be smaller than the source, otherwise, you want to make sure it is at least large enough to hold the QCOW2 or ISO that is being imported.
-* The *type* of the disk can be changed to be, for example, a CD-ROM device.
-* Each disk connects to the VM using an *interface*. The `VirtIO` interface is the KVM paravirtualized interface type.
-* The *StorageClass* indicates the type of storage that is backing the VM disk. This will be different for each storage provider, and some storage providers can have multiple storage classes representing different features, performance, and other capabilities.
-* *Optimized StorageProfile Settings* indicate to use the clone strategy and volume mode indicated for the storage type. These are provided by Red Hat for many CSI providers, but can also be customized for your use cases.
+* *PersistentVolumeClaim Size* は VM に接続されているディスクのサイズです。ディスクのソースが別の PVC である場合、そのソースのサイズより小さくすることはできません。そうでない場合は、少なくともインポートされる QCOS2 または ISO イメージを保持するのに充分なサイズであることを確認します。
+* *Type* はデバイスのタイプで、ディスク以外にも例えば CD-ROM デバイスなどに変更することができます。
+* 各ディスクは *Interface* を使って VM に接続されます。`VirtIO` インターフェースは、KVM の準仮想化 (Paravirtualize) インターフェースです。
+* *StorageClass* は VM ディスクのバックエンドであるストレージのタイプを示します。これはストレージ・プロバイダごとに異なります。一部のストレージ・プロバイダは機能、パフォーマンス、その他ケイパビリティによって異なる複数の Storage Class を持つことができます。
+* *optimized StorageProfile Settings* は、ストレージタイプが示すクローン戦略とボリュームモードを使用することを示します。これらは多くの CSI プロバイダ向けに Red Hat が提供していますが、ユースケースに合わせてカスタマイズすることもできます。
 +
 [NOTE]
-If you would like to learn more about virtual machine storage, choose the optional Storage Management module from the workshop navigation menu.
+VM のストレージについて詳しく知りたい場合は、workshop のナビゲーションメニューから「ストレージの管理」モジュールを受講してください。
 
-. Navigate to the *Scripts* tab. This tab is used to apply guest OS customization, such as cloud-init or Sysprep, at deployment time.
+. *Scripts* タブに移動します。このタブは `cloud-init` や `SysPrep` などでゲスト OS のカスタマイズをデプロイ時に適用するために使います。
 +
 image::images/Create_VM_URL/05_Wizard_Scripts.png[]
 +
-* *cloud-init* can be configured using the GUI dialog or using a standard YAML script for more advanced configuration. In the next step, we'll customize this information
-* An *Authorized SSH key* may, optionally, be provided to allow one or more users to connect to the VM without a password. This SSH key can be stored as a `Secret` and automatically applied to new Linux VMs if desired.
-* *Sysprep* is the Microsoft Windows tool for automatically configuring new OS deployments, including setting configurations like hostname, default `Administrator` passwords, and joining an Active Directory domain.
+* *Cloud-init* は Linux VM 向けのツールです。GUI ダイアログを使って設定するか、標準の YAML スクリプトを使ってより高度な設定を行うことができます。次のステップでカスタマイズの方法をお見せします。
+* *Authorized SSH key* はユーザがパスワードなしで VM に接続できるよう SSH キーを適用するオプションです。この SSH キーは `Secret` として保存することができ、必要に応じて新規の Linux VM をデプロイする際に自動的に適用するよう設定できます。
+* *Sysprep* は Microsoft Windows VM 向けのツールです。ホスト名やデフォルトの `Administrator` パスワードの設定、Active Directory ドメインへの参加などを、新規 Windows VM で自動的に設定することができます。
 +
 [NOTE]
-If you want to learn more about how to customize and deploy Windows virtual machines, choose the optional Windows Virtual Machines module from the workshop navigation menu.
+Windows VM のカスタマイズとデプロイ方法について詳しく知りたい場合は、workshop のナビゲーションメニューから「Windows 仮想マシン」モジュールを受講してください。
 
-. Since this is a Fedora VM, press *Edit* in the *Cloud-init* section to specify the password `ocpVirtIsGre@t` for the user `fedora`. Click *Apply* when done.
+. これは Fedora VM なので *Cloud-init* セクションを使います。*Edit* をクリックし、`fedora` ユーザのパスワードを `ocpVirtIsGre@t` と指定し、*Apply* をクリックします。
 +
-Notice that we can also specify network configuration information here by checking the appropriate box. This is useful when, for example, you're connecting the VM directly to a VLAN network and want to configure a static IP address.
+*Add network data* のチェックボックスを選択することで、ここでネットワーク設定の情報を指定することもできます。例えば、VM を外部の VLAN ネットワークに直接接続し、静的 IP アドレスを設定したい場合などに便利です。
 +
 image::images/Create_VM_URL/05_Wizard_Scripts_Password.png[]
 
-. Press *Create VirtualMachine* ensuring the option *Start this VirtualMachine after creation* is checked.
+. *Start this VirtualMachine after creation* がチェックされていることを確認して、*Create VirtualMachine* をクリックします。
 +
 image::images/Create_VM_URL/06_Wizard_Review.png[]
 +
 [NOTE]
-If you forget to check the _Start this VirtualMachine after creation_ box, after the VM has been created and is in the `Stopped` status, click the *Actions* drop-down in the upper right of the panel and select *Start*.
+_Start this VirtualMachine after creation_ をチェックし忘れた場合は、VM が作成された後 `Stopped` 状態で止まります。パネル右上の *Actions* ドロップダウンから *Start* を選択し、VM を開始してください。
 
-. Once the Virtual Machine is running feel free to connect to it using the *Console* tab. Remember that the user is `fedora` and the password is now the one that you specified before (for example `ocpVirtIsGre@t`).
+. VM が起動したら *Console* タブを使って、VM に接続してください。ユーザは `fedora` で、パスワードは前に指定したもの (`ocpVirtIsGre@t`) であることを忘れないでください。
 
 ////
 == Virtual Machine Templates

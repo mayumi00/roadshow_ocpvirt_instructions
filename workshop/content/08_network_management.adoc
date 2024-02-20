@@ -1,51 +1,48 @@
 :scrollbar:
 :toc2:
 
-= Network Management Lab
+= ネットワーク管理ラボ
 
 :numbered:
 
-== Introduction to Network Management
+== ネットワーク管理への導入
 
-By default, all virtual machines are attached to the OpenShift software-defined network (SDN), which enables access from other workloads on the OpenShift cluster, including other VMs and any OpenShift native applications.
+デフォルトでは、全ての VM は OpenShift の SDN に接続され、他の VM や任意の OpenShift ネイティブアプリケーションを含む、OpenShift クラスタ上のワークロードからのアクセスを可能とします。
 
-* The SDN provides additional features for abstracting, connecting, and exposing applications in a controlled manner, whether deployed as VMs or Pods in the cluster. These include the `Service` and `Route` features of OpenShift.
-* OpenShift's network policy engine allows the VM user or administrator to create rules which allow or deny network traffic to and from individual VMs or entire projects/namespaces.
+* SDN は、アプリケーションを抽象化し、接続し、コントロールされた形で公開するための追加機能を提供します。これには、OpenShift の `Service` と `Route` が含まれます。
+* OpenShift のネットワーク・ポリシー・エンジンは、VM ユーザや管理者が個々の VM やプロジェクト全体へのネットワークトラフィックを、許可または拒否するルールを提供します。
 
-However, virtual machines may also connect directly to one or more external networks, such as VLANs, when needed. This is in addition to the SDN, which means that, for example, the administrator can connect to the VM from an external IP address, but the application communicates across the SDN with other VMs hosted by OpenShift Virtualization.
+しかし、VM は必要に応じて VLAN のような 1 つ以上の外部ネットワークに直接接続することもできます。これはデフォルトの SDN に加えて設定できます。例えば管理者が外部 IP アドレスから VM に接続し、同時にアプリケーションは OpenShift Virtualization 上の他の VM と SDN を介して接続する、ということも可能です。
 
-At a high level, this is done by configuring the host networking, such as creating a mode 4 (LACP) bond and a Linux bridge on top. This workshop segment will walk through the next step in that process, creating a network attachment definition to allow VMs to connect to that bridge and, therefore, directly to the external network. 
-
-// WKTBD: Maybe add some NetworkPolicy (there is a web console wizard available now in 4.13).
+これはモード 4 (LACP) ボンディングと、その上の Linux ブリッジを作成するような、ホストネットワーキングを設定することで実現されます。このモジュールでは、そのプロセスの次のステップである、VM がブリッジに、つまり外部ネットワークに直接接続できるようにするための、*Network Attachment Definitions* の作成について説明します。
 
 [NOTE]
-The OpenShift environment has already been configured with a Linux Bridge on each compute node your virtual machines will connect to, thus allowing for easy connectivity with/from outside network resources.
+このラボの OpenShift 環境では、すでに VM が稼働する各ノード上に Linux ブリッジが設定されており、外部ネットワークリソースとの接続が簡単にできるようになっています。
 
-.Goals
-* Create a network attachment definition
-* Connect a VM to the external network
+.ゴール
+* Network Attachment Definition を作成する。
+* VM を外部ネットワークに接続する。
 
-== Create Network Attachment Definition
+== Network Attachment Definition の作成
 
-In order to use the Linux Bridge with your VM you need to create a *Network Attachment Definition*. This is what tells OpenShift about the network and allows the virtual machines to connect to it. Network Attachment Definitions are specific to the project/namespace they're created in, unless they're created in the `default` project. This gives you, the administrator, the ability to control which networks are and aren't available to users who have access to manage their own Vms. Once the Network Attachment Definition has been created, it can then be used by virtual machines when configuring their network adapters.
+VM で Linux ブリッジを使用するには、*Network Attachment Definition* を作成する必要があります。これは OpenShift クラスタに対してネットワークに関する情報を提供し、VM が接続できるようにするものです。*Network Attachment Definition* は `default` プロジェクトで作成されない限りは、作成されたプロジェクトで固有のものです。このため、管理者は自分の VM を管理するユーザがどのネットワークを利用でき、また利用できないかを制御することができます。一度 *Network Attachment Definition* を作ると、VM のネットワークアダプタを設定する際に使うことができます。
 
 [NOTE]
-A network attachment definition instructs openshift to utilise an existing network device. In our case that device was previously created and is named br-flat. You must use that name or OpenShift won’t be able to place your VM on any compute nodes as it can only utilise nodes with that specifically named network device on it.
+Network Attachment Definition は既存のネットワークデバイスを利用するよう OpenShift クラスタに指示します。このラボでは `br-flat` という名前で以前に作成されたデバイスを使います。この名前をデバイス名として指定しないと、どのノードにも VM を配置できないので、注意してください。
 
-How is this done?
+OpenShift ノードのネットワーク設定を管理するには、NMState Operator というツールを使います。NMState を使うことで Kubernetes の構造で OpenShift ノード上にネットワークインターフェースを構成することができます。あなたのニーズとネットワーク要件に合うネーミングをすることができます。NMState とホストネットワーキングの詳細、および構成の表示と管理方法については、
+link:https://docs.openshift.com/container-platform/4.14/networking/k8s_nmstate/k8s-nmstate-about-the-k8s-nmstate-operator.html[ドキュメント] 参照してください。
 
-To manage an OpenShift node's network configuration you use a tool, available as an operator, called nmstate. With nmstate you can create network interfaces on OpenShift compute nodes using Kubernetes constructs. You can do this following naming that suits your needs and network requirements. For more info about nmstate, and to learn more about the host networking and how to view and manage the configuration, see the ([nmstate documentation](https://docs.openshift.com/container-platform/latest/networking/k8s_nmstate/k8s-nmstate-observing-node-network-state.html)) or speak with your lab proctors."
-
-. Navigate to *Networking* -> *Network Attachment Definitions* and click *Create network attachment definition*:
+. 左メニューで *Networking* -> *Network Attachment Definitions* に移動し、*Create network attachment definition* をクリックします。
 +
 image::images/Networking/01_NAD_Dashboard.png[]
 +
 [IMPORTANT]
 ====
-Select project `vmexamples`.
+`vmexamples` プロジェクトを選択してください。
 ====
 
-. Complete the form for the `vmexamples` project as follows, then click *Create network attachment definition*:
+. フォームで以下のように入力し、*Create* を押します。
 * *Name*: `flatnetwork`
 * *Network Type*: `CNV Linux Bridge`
 * *Bridge Name*: `br-flat`
@@ -53,44 +50,44 @@ Select project `vmexamples`.
 image::images/Networking/02_NAD_Create.png[]
 +
 [NOTE]
-The form above has an input for `VLAN Tag Number`, which is used when connecting to a network that needs to have a VLAN tag assigned. This lab uses an untagged network, so no VLAN number is required here.
+フォームには `VLAN Tag Number` という項目があり、VLAN タグを割り当てる必要があるネットワークに接続するときに使用します。このラボではタグなしのネットワークを使用するため、VLAN 番号は必要ありません。 
 +
-A single Linux Bridge on the host can have many different VLANs. In this scenario, you only need to create a Network Attachment Definiton for each one, not a separate host interface and bridge.
+ホスト上の 1 つの Linux ブリッジは、多くの異なる VLAN を持つことができます。このシナリオでは、ホストインターフェースとブリッジを個別に作成するのではなく、それぞれに Network Attachment Definiton を作成するだけです。
 
-. Examine the details of the network attachment definition. Because this was created in the `vmexamples` project, it will not be available in other projects.
+. Network Attachment Definiton の詳細を確認します。これおは `vmexamples` プロジェクトで作成されたので、他のプロジェクトでは使用できません。
 +
 image::images/Networking/03_NAD_Created.png[]
 
-== Connect a virtual machine to the external network
+== 仮想マシンを外部ネットワークに接続する
 
-. Navigate to *Virtualization* -> *VirtualMachines*, select the `fedora02` VM. Click *Configuration* tab and then click the *Network Interfaces* subtab:
+. 左メニューで *Virtualization* -> *VirtualMachines* に移動し、`fedora02` VM を選択します。*Configuration* タブをクリックし、*Network interfaces* サブタブをクリックします。
 +
 image::images/Networking/04_VM_Network_Tab.png[]
 
-. Click *Add Network Interface*, complete the form as shown, then click *Save*.
+. *Add Network Interface* をクリックし、表示されているフォームに下の図のように入力し、*Save* をクリックします。
 +
-Because this is a bridge connecting to the external network, we don't need to rely on any OpenShift features or capabilities to enable access, such as masquerade (NAT) for the virtual machines using the network. As a result, *type* should be `Bridge` here.
+これは外部ネットワークに接続するブリッジなので、マスカレード (NAT) のようなアクセスを有効にするための OpenShift の機能に依存する必要はありません。そのためここでは *Type* を `Bridge` とします。
 +
 image::images/Networking/05_VM_Network_Attach.png[]
 
-. Use the *Actions* menu to restart the VM. After rebooting, navigate to the *Console* tab:
+. *Actions* メニューを使用して、VM を再起動します。再起動後、*Console* タブに移動します。
 +
 image::images/Networking/06_VM_Network_Console.png[]
 +
-The `eth1` interface obtains an IP address from the flat network (`192.168.3.x/24`). That network has a DHCP server providing IPs to that network. 
+`eth1` というインターフェースが認識されています。この NIC はフラットネットワーク (`192.168.3.0/24`) 上の DHCP サーバから動的に IP アドレスを取得しています。
 +
 
-. (Optional) Verify external connectivity of the VM using the OpenShift web termianl.
+. (オプション) OpenShift Web ターミナルを使用して、VM の外部ネットワークへの接続性を確認します。
 +
-.. Open a terminal by pressing the right-top icon:
+.. 右上のアイコンを押してターミナルを開きます。
 +
 image::images/OCP_Terminal_Icon.png[]
 
-.. A console in the bottom part of the screen will appear
+.. 画面下部にコンソールが表示されます。
 +
 image::images/OCP_Terminal.png[]
 
-.. Type the following command replacing the IP
+.. あなたの VM の `eth1` に対して、以下のコマンドを実行します。
 +
 [%nowrap]
 ----
@@ -98,9 +95,9 @@ bash-4.4 ~ $ curl 192.168.3.118:22
 ----
 +
 [NOTE]
-Replace the IP which the IP assigned to the node.
+あなたの VM の IP アドレスに置き換えて実行してください。
 +
-.Sample Output
+.サンプル出力
 +
 [%nowrap]
 ----

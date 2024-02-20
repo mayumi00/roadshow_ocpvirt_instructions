@@ -15,9 +15,9 @@ VM 作成は、管理者にとって最も頻繁に実行するタスクの1つ�
 * VM コンソールにアクセスする
 * VM コンソールの使用経験を積む
 
-== 新しい Project の作成
+== 新しいプロジェクトの作成
 
-OpenShift の他のオブジェクトと同様に、Kubnernetes の Namespace を抽象化した Project は、パーミッションやリソースを使用・管理するための境界となります。Project の作成はあらゆるワークロードをデプロイする際の重要な第一歩です。
+OpenShift の他のオブジェクトと同様に、Kubnernetes の Namespace を抽象化した *Project* は、パーミッションやリソースを使用・管理するための境界となります。プロジェクトの作成はあらゆるワークロードをデプロイする際の重要な第一歩です。
 
 . 左メニューの *Virtualization* -> *VirtualMachines* に移動します。
 +
@@ -32,12 +32,12 @@ image::images/Create_VM_PVC/01_Left_Menu.png[Navigation Menu,136,266]
 +
 image::images/Create_VM_PVC/51_vm_list.png[]
 
-. VM を作成する前に、新しい Project を作成します。一般的に VM は特定の Project にデプロイされ、その Project へのアクセス権限を持たないユーザからは、VM にアクセス、管理、制御はできません。クラスタ管理者はすべての Project にアクセスできるため、すべての VM を見ることができます。
+. VM を作成する前に、新しいプロジェクトを作成します。一般的に VM は特定のプロジェクトにデプロイされ、そのプロジェクトへのアクセス権限を持たないユーザからは、VM にアクセス、管理、制御はできません。クラスタ管理者はすべてのプロジェクトにアクセスできるため、すべての VM を見ることができます。
 +
 .. *Project: All Projects* をクリックし、*Create Project* をクリックします。
 +
 image::images/Create_VM_PVC/50_create_new_project.png[]
-.. *Name* フィールドに `vmexamples` と入力して Project 名を付け、*Create* をクリックします。
+.. *Name* フィールドに `vmexamples` と入力してプロジェクト名を付け、*Create* をクリックします。
 +
 image::images/Create_VM_PVC/03_Create_Project.png[]
 

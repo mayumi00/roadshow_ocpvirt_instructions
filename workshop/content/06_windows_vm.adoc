@@ -1,59 +1,61 @@
 :scrollbar:
 :toc2:
 
-= Windows Virtual Machines with OpenShift Virtualization
+= OpenShift Virtualization における Windows 仮想マシン
 
 :numbered:
 
-This lab will introduce you to the basics of creating and managing Microsoft Windows VMs in OpenShift Virtualization. This process is very similiar to creating and managing Linux-based virtual machines, be sure to return to the OpenShift Virtualization Basics module and go through the exercises for reviewing resources and configuration.
+このモジュールでは、OpenShift Virtualization における Microsoft Windows VM の作成と管理の基本を紹介します。このプロセスは、Linux ベースの VM の作成と管理に非常によく似ています。分からなくなった場合は、「OpenShift Virtualization の基礎」モジュールに戻り、リソースと構成を確認するための演習を振り返ってみてください。
 
-.Goals
-* Create a new Windows virtual machine
-* Customize the OS using sysprep
+.ゴール
+* 新しい Windows VM を作成する。
+* Sysprep を使って OS をカスタマイズする。
 
-== Create a Windows virtual machine
+== Windows 仮想マシンの作成
 
-In this segment, we will install Microsoft Windows Server 2019 using an ISO hosted on a web server. This represents one way to install an operating system to a virtual machine that takes advantage of the ability to source disks from many locations, including a web server, object storage, or other persistent volumes in the cluster.
+ここでは、Web サーバ上にホストされている ISO イメージを使って Microsoft Windows Server 2019 をインストールします。これは、Web サーバやオブジェクトストレージ、またはクラスタ内の他の PV など、様々な場所にあるディスクをソースとすることができる機能を利用して、VM に OS をインストールする方法の 1 つです。
 
-This process can be streamlined after the initial operating system installation by creating a template from the virtual machine. The specific process for preparing the guest operating system to be used as a template will vary, be sure to follow your organization's guidelines and requirements when preparing a template OS.
+このプロセスは、VM からテンプレートを作成することで最初の OS のインストール後に効率化できます。テンプレートとして使うゲスト OS を準備する具体的なプロセスは組織によって異なります。あなたの組織ガイドラインと要件に従うようにしてください。
 
-. From the left menu, navigate to *Virtualization* -> *VirtualMachines*:
+. 左メニューから *Virtualization* -> *VirtualMachines* に移動します。
 +
 image::images/Create_VM_PVC/01_Left_Menu.png[]
-. It will list the VMs running in the current project.
+. 現在のプロジェクトで稼働している VM が一覧表示されます。
 +
 image::images/Create_VM_PVC/25_List_VMs.png[]
-. Press on the top-right the button *Create* and select *From template*
+. 右上のボタンの *Create* をクリックし、*From template* を選択します。
 +
 image::images/Create_VM_PVC/26_From_Template.png[]
-. Scroll down and select *Microsoft Windows Server 2019 VM* tile.
+. 下にスクロールして、*Microsoft Windows Server 2019 VM* を選択します。
 +
 image::images/Create_VM_PVC/27_Windows_2k9_Tile.png[]
 
-. A dialog will appear showing the default configuration related to the template.
+. テンプレートに関するデフォルトの構成を示すダイアログが表示されます。
 +
 image::images/Create_VM_PVC/28_Windows_2k9_Dialog.png[]
 
-. Press *Customize VirtualMachine* to specify the parameters to be used for the provisioning.
+. *Customize VirtualMachine* をクリックして、プロビジョニングで使用するパラメータを指定します。
 +
 image::images/Create_VM_PVC/29_Windows_2k9_Parameters.png[]
 
-. In this dialog:
-.. Specify the name `windows`
-.. Enable the checkbox *Boot from CD* and specify the url: http://192.168.123.100:81/Windows2019.iso
-. Reduce the CD disk size to *5 GiB*.
-. Keep the `Disk source` size disk to the default value *60 GiB*
-. Ensure the `Mount Windows drivers disk` is enabled. This is required to install Windows systems, which will provide the drivers for VirtIO.
+. ダイアログでは次のように入力します。
+.. *Name* : `windows`
+.. *Boot from CD* チェックボックスを有効化
+.. *Image URI* : `http://192.168.123.100:81/Windows2019.iso`
+.. *Disk size* : `5 GiB`
+.. *Disk source* : `Blank`
+.. *Disk size* : `60 GiB`
+.. *Mount Windows drivers disk* チェックボックスを有効化。これは VirtIO 用のドライバを提供するために必要です。
 
-. Press *Next* after filling in the parameters.
+. パラメータを入力したら *Next* を押します。
 +
 image::images/Create_VM_PVC/30_Windows_2k9_Parameters_Filled.png[]
 
-. Switch to the *Scripts* tab and press *Edit* on the `Sysprep` section
+. *Scripts* タブに切り替えて、`Sysprep` セクションの *Edit* をクリックします。
 +
 image::images/Create_VM_PVC/30_Windows_2k9_Scripts.png[]
 
-. Fill the `autounattend.xml` form with the following code
+. `Autounattend.xml answer file`` のフォームに、以下のコードをコピー&ペーストします。
 +
 [source,xml,role=copy]
 ----
@@ -194,25 +196,25 @@ image::images/Create_VM_PVC/30_Windows_2k9_Scripts.png[]
 </unattend>
 ----
 
-. Click *Save* on the dialog
+. *Save* をクリックします。
 +
 image::images/Create_VM_PVC/30_Windows_2k9_Sysprep.png[]
 
-. Press *Create VirtualMachine*
+. `Autounattend.xml answer file` が `Available` と表示されていることを確認し、*Create VirtualMachine* を押します。
 +
 image::images/Create_VM_PVC/31_Windows_2k9_Create.png[]
 
-. The Virtual Machine will start the provisioning process by downloading the ISO image, configuring, and starting the instance.
+. VM は ISO イメージのダウンロード、設定、インスタンスの起動によって、プロビジョニングプロセスを開始します。
 +
 image::images/Create_VM_PVC/32_Windows_2k9_Provisioning.png[]
 
-. After a few minutes, the Virtual VM will be in `Running` status. Switch to the *Console* tab:
+. 数分後、`windows` VM が `Running` ステータスになります。*Console* タブに切り替えると、Windows のインストールプロセスが進んでいることが確認できます。
 +
 image::images/Create_VM_PVC/33_Windows_2k9_Console.png[]
 +
 [NOTE]
-It is not necessary for this workshop to wait for the installation to complete. You can continue to the next module.
+このワークショップでは Windows のインストールが完了するまで待つ必要はありません。次のモジュールに進むことができます。
 +
 [IMPORTANT]
-The VM is marked as "Not migratable" because a CD-ROM disk is attached. 
+`Running` ステータスの横に、`Not migratable` と表示されていますが、これは CD-ROM ディスクが接続されているためです。インストール完了後に、CD-ROM ディスクを取り外すと Migration できるようになります。
 

@@ -53,11 +53,11 @@ image::images/Create_VM_PVC/04_Create_VM_Templates.png[]
 . *Fedora VM* をクリックすると、ダイアログが開きます。
 +
 image::images/Create_VM_PVC/05_Create_VM_Quick.png[]
-. 名前を `fedora01` に変更し、*Quick create VirtualMachine* をクリックします。
+. *VirtualMachine name* を `fedora01` に変更し、*Quick create VirtualMachine* をクリックします。
 +
 image::images/Create_VM_PVC/05_Create_VM_Quick_Name.png[]
 +
-. 数秒後、作成した VM が `Running` であることが確認できるでしょう。この間に、ストレージ・プロバイダは新しく作成された VM で使用できるよう、テンプレート・ディスクをクローンしいます。この作業にかかる時間は、ストレージ・プロバイダによって異なります。
+. 数秒後、作成した VM が `Running` であることが確認できるでしょう。この間に、ストレージ・プロバイダは新しく作成された VM で使用できるよう、テンプレート・ディスクをクローンします。この作業にかかる時間は、ストレージ・プロバイダによって異なります。
 +
 image::images/Create_VM_PVC/06_Fedora_Running.png[]
 
@@ -65,7 +65,7 @@ image::images/Create_VM_PVC/06_Fedora_Running.png[]
 +
 image::images/Create_VM_PVC/09_Fedora_Events.png[]
 +
-* _DataVolume_ が作成されます。_DataVolumes_は VM ディスクの作成を管理するために使われ、VM 作成のフローにおいてクローンやインポートの処理を OpenShift の永続ストレージ上に抽象化しています。
+* _DataVolume_ が作成されます。_DataVolume_ は VM ディスクの作成を管理するために使われ、VM 作成のフローにおいてクローンやインポートの処理を OpenShift の永続ストレージ上に抽象化しています。
 * _VM_ が起動します。
 . VMに関する情報を取得するには、*Details* タブをクリックします。このテンプレートでは、デフォルトで 1 CPU と 2GiB メモリであることを確認してみましょう。管理者は、VM のデフォルト構成をカスタマイズして新しいテンプレートを作成できます。
 +
@@ -110,9 +110,20 @@ image::images/Create_VM_PVC/17_Fedora_CPU_Memory.png[]
 
 . ゲストのカスタマイズを確認するには、`cloud-init` ディスクをマウントします。
 +
+[source,shell]
+----
+sudo mount /dev/vdb /mnt
+sudo cat /mnt/user-data; echo
+----
++
 image::images/Create_VM_PVC/21_Fedora01_Cloud_Init.png[]
 
-. このインスタンスはゲストエージェントを実行しています。ゲストエージェントは、スナップショット時のディスク静止 (quiescing) などのタスクを連携するだけでなく、ゲスト OS に関する情報をハイパーバイザーに提示しています。
+. このインスタンスは QEMU ゲストエージェントを実行しています。ゲストエージェントは、スナップショット時のディスク静止 (quiescing) などのタスクを連携するだけでなく、ゲスト OS に関する情報をハイパーバイザーに提示しています。
++
+[source,shell]
+----
+systemctl |grep guest
+----
 +
 image::images/Create_VM_PVC/19_Fedora_Agent.png[]
 
@@ -121,8 +132,7 @@ image::images/Create_VM_PVC/19_Fedora_Agent.png[]
 image::images/Create_VM_PVC/19_Fedora_Agent_Details.png[]
 +
 * ホスト名
-* OS バージョンとタイムゾーン
-* アクティブユーザ
+* OS バージョン
 * 使用率 : CPU, メモリ, ストレージ, ネットワーク
 
 . *Metrics* タブに移動すると、時間範囲を指定できるなど、使用状況に関する詳細な情報を得ることができます。

@@ -3,7 +3,7 @@
 :preinstall_operators: %preinstall_operators%
 :numbered:
 
-= MetalLB を使ったアプリケーション VM の公開
+= MetalLB を使ったアプリケーションの公開
 
 このラボでは、MetalLB Operator をレビューし、VM がホストするアプリケーションを OpenShift クラスタの外部に公開します。
 

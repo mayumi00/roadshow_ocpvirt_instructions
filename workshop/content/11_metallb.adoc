@@ -3,103 +3,86 @@
 :preinstall_operators: %preinstall_operators%
 :numbered:
 
-In this lab, you will review the MetalLB operator and expose virtual machine hosted applications outside of the cluster.
+= MetalLB を使ったアプリケーション VM の公開
 
-==  MetalLB concepts
+このラボでは、MetalLB Operator をレビューし、VM がホストするアプリケーションを OpenShift クラスタの外部に公開します。
 
-Using MetalLB is valuable when you have a bare-metal cluster or a virtual infrastructure that is treated like bare-metal, and you want to ensure fault-tolerant access to an application through an external IP address.
+==  MetalLB の概念
 
-For MetalLB to meet this need, you must configure your networking infrastructure to ensure that the network traffic for the external IP address is routed from clients to the host network for the cluster. 
+ベアメタルクラスタ、またはベアメタルのように扱われる仮想インフラを使用していて、外部 IP アドレスを介してアプリケーションへのフォールトトレラントなアクセスを確保したい場合は、MetalLB を使用すると便利です。
 
-It can operate in two modes:
+MetalLB でこのニーズを満たすには、クライアントからクラスタのホストネットワークにルーティングされるように、ネットワークインフラを設定する必要があります。
 
-* *MetalLB operating in layer2 mode* provides support for failover by utilizing a mechanism similar to IP failover. However, instead of relying on the virtual router redundancy protocol (VRRP) and keepalived, MetalLB leverages a gossip-based protocol to identify instances of node failure. When a failure is detected, another node assumes the role of the leader node, and a gratuitous ARP message is dispatched to broadcast this change.
-* *MetalLB operating in layer3 or border gateway protocol (BGP) mode* delegates failure detection to the network. The _BGP_ router or routers that the *OpenShift Container Platform* nodes have established a connection with will identify any node failure and terminate the routes to that node.
+MetalLB は 2 つのモードで動作します：
 
-Using MetalLB instead of IP failover is preferable for ensuring high availability of pods and services.
+* *Layer 2 モード* +
+IP フェイルオーバーと同様のメカニズムを利用することでフェイルオーバーをサポートします。ただし、仮想ルーター冗長プロトコル (VRRP) と keepalived に 依存する代わりに、MetalLB は gossip-based なプロトコルを活用してノード障害のインスタンスを特定します。障害が検出されると、別のノードがリーダーノードの役割を引き受け、この変更をブロードキャストするために GARP のメッセージが送信されます。
 
-=== Layer2 mode
+* *Layer 3 (Border Gateway Protocol : BGP) モード* +
+障害検知をネットワークに委譲します。*OpenShift Container Platform* ノードが接続を確立している _BGP_ ルータは、ノードの障害を識別するとそのノードへのルートを終了します。
 
-In layer 2 mode, the speaker pod on one node announces the external IP address for a service to the host network. From a network perspective, the node appears to have multiple IP addresses assigned to a network interface.
+Pod と Service の高可用性を確保するには、IP フェールオーバーの代わりに MetalLB を使うことが望ましいです。
 
-In layer 2 mode, all traffic for a service IP address is routed through one node. After traffic enters the node, the service proxy for the CNI network provider distributes the traffic to all the pods for the service.
+=== Layer 2 モード
 
-When a node becomes unavailable, failover is automatic. The speaker pods on the other nodes detect that a node is unavailable, and a new speaker pod on a surviving node will take ownership of the service IP address from the failed node.
+Layer 2 モードでは、1 つのノードの `Speaker` Pod がホストネットワークに Service の外部 IP アドレスをアナウンスします。ネットワークから見ると、ノードはネットワーク・インターフェースに複数の IP アドレスを割り当てているように見えます。
+
+Layer 2 モードでは、Service IP アドレスのすべてのトラフィックは 1 つのノードを経由してルーティングされます。トラフィックがノードに入ると、CNI ネットワークプラグインのサービスプロキシが、その Service のすべての Pod にトラフィックを分配します。
+
+ノードが使用できなくなると、フェイルオーバーが自動的に行われます。他のノードの `Speaker` Pod はノードが利用できなくなったことを検出し、生き残ったノードの新しい `Speaker` Pod が、障害が発生したノードの Service IP アドレスの所有権を取得します。
 
 image::images/MetalLB/00_layer2.png[]
 
-=== Layer 3 (BGP) mode
+=== Layer 3 (BGP) モード
 
-In BGP mode, by default, each speaker pod advertises the load balancer IP address for a service to each BGP peer. It is also possible to advertise the IPs coming from a given pool to a specific set of peers by adding an optional list of BGP peers. BGP peers are commonly network routers that are configured to use the BGP protocol. When a router receives traffic for the load balancer IP address, the router picks one of the nodes with a speaker pod that advertised the IP address. The router sends the traffic to that node. After traffic enters the node, the service proxy for the CNI network plugin distributes the traffic to all the pods for the service.
+BGP モードではデフォルトで、各 `Speaker` Pod は各 BGP ピアに Service のロードバランサ IP アドレスをアドバタイズします。また、オプションで BGP ピアのリストを追加することで、指定されたアドレスプールから来る IP を特定のピアにアドバタイズすることも可能です。BGP ピアは一般的に、BGP プロトコルを使用するよう設定されたネットワーク・ルータです。ルータがロードバランサの IP アドレスのトラフィックを受け取ると、ルータは IP アドレスをアドバタイズした `Speaker` Pod を持つノードの 1 つを選びます。ルータはそのノードにトラフィックを送信します。トラフィックがそのノードに入ると、CNI ネットワークプラグインのサービスプロキシがトラフィックを Service のすべての Pod に分配します。
 
-If a node becomes unavailable, the router then initiates a new connection with another node that has a speaker pod that is advertising the load balancer IP address.
+ノードが利用できなくなった場合、ルータはロードバランサの IP アドレスをアドバタイズしている `Speaker` Pod を持つ別のノードと新しい接続を開始します。
 
 image::images/MetalLB/00_bgp.png[]
 
-////
-== Review Operator
 
-. Navigate to *Operators* -> *Installed Operators*. Select *All Projects* and select *MetalLB*
-+
-image::images/MetalLB/01_Operator_Installed.png[]
+== IP AddressPool の定義
 
-. Review the *Provided APIs* on the Details tab
-+
-image::images/MetalLB/02_Review_Operator.png[]
+このラボでは、OpenShift クラスタノードが配置されているのと同じネットワーク (`192.168.123.0/24`) を使って、OpenShift クラスタ内の Service に使用する IP アドレスレンジ `192.168.123.200-192.168.123.250` を予約します。
 
-. Select the tab *MetalLB* to ensure the deployment is installed and configured correctly
-+
-image::images/MetalLB/03_Review_Operator_MetalLB.png[]
-////
-
-== Define IP AddressPool
-
-For this lab, we will use the same network where the OpenShift Cluster nodes are located (`192.168.123.0/24`) and for this exercise we will reserve the IP range `192.168.123.200-192.168.123.250` to be used for load balanced services in the OpenShift cluster.
-
-. In the left navigation menu, browse to *Operators -> Installed Operators*, switch to project `metallb-system`. Then choose the MetalLB Operator
+. 左メニューで *Operators -> Installed Operators* に移動し、`metallb-system` プロジェクトで MetalLB Operator を選択します。
 +
 image::images/MetalLB/40_navigation.png[]
 
-. Switch the tab *IPAddressPool* (you may need to scroll the tabs to the right to see it) and press *Create IPAddressPool*
+. *IPAddressPool* タブに移動し、*Create IPAddressPool* をクリックします。
 +
 image::images/MetalLB/21_navigation.png[]
 
-. Use the name `ip-addresspool-webapp` and under section _addresses_, remove any existing addresses and enter `192.168.123.200-192.168.123.250` as the address pool. When complete it should look similar to this image:
+. `ip-addresspool-webapp` という名前を使って、_addresses_ セクションで既存のアドレスを全て削除します。その後、下の図のように `192.168.123.200-192.168.123.250` と入力します。
 +
 image::images/MetalLB/09_MetalLB_IPAddressPool_Defined.png[]
 
-. Scroll down and press *Create*.
+. スクロールダウンして *Create* をクリックします。
 
-=== Configure Layer2 mode
+=== Layer 2 モードの設定
 
-For this lab we will use MetalLB in layer2 mode, so we need to create the configuration.
+このラボでは、MetalLB を Layer 2 モードで使用します。
 
-. Switch to the *L2Advertisement* tab (you may need to scroll the tab list to the right to see it) and press *Create L2Advertisement*.
+. *L2Advertisement* タブに切り替え、*Create L2Advertisement* をクリックします。
 +
 image::images/MetalLB/22_navigation.png[]
 
-. Indicate the name `l2-adv-webapp` and under section _ipaddressPools_ specify the value `ip-addresspool-webapp` as is shown:
+. 名前を `l2-adv-webapp` とし、_ipaddressPools_ セクションに、`ip-addresspool-webapp` と入力する。
 +
 image::images/MetalLB/10_MetalLB_L2Advertisement.png[]
 
-. Press *Create*
+. *Create* を押します。
 
-== Expose the database node externally
+== データベースを外部に公開する
 
-If you completed the *Exposing apps using a Route* module, the VM is currently accessible from inside the cluster using the Service previously created. In this task, we will expose port 3306 outside of the cluster, making the database avaialble to other virtual machines and consumers not hosted in OpenShift.
+*Route を使ったアプリケーションの公開* モジュールを完了している場合、VM には作成した Service を使用してクラスタ内部からアクセスできます。このタスクでは、クラスタの外部にポート 3306 を公開し、OpenShift でホストされていない他の VM やクライアントからデータベースを利用できるようにします。
 
-. Navigate to *Networking* -> *Services* and select the project `vmexamples`
+. 左メニューで *Networking* -> *Services* に移動し、`vmexamples` プロジェクトを選択します。
 +
 image::images/MetalLB/11_Services.png[]
-+
-[IMPORTANT]
-====
-If you did not complete the module *Migrating Virtual Machines* you can use pre-existing virtual machines in the `vmimported` project. 
 
-If you are using the pre-imported virtual machines, please replace all instances of `vmexamples` namespace with `vmimported`.
-====
-
-. Press *Create Service* and fill the form with the following code snippet:
+. *Create Service* を押して、以下の内容をフォームに入力します。
 +
 [source,yaml]
 ----
@@ -119,34 +102,34 @@ spec:
 ----
 +
 [NOTE]
-Notice the `type` indicated is `LoadBalancer`. Since this cluster has MetalLB installed, it will result in the specified port(s) exposed using that. There are other load balancer options available from partners such as F5, Nginx, and more.
+`type` が `LoadBalancer` であることに注意してください。このクラスタは MetalLB がインストールされているので、指定されたポートは MetalLB を使って公開されます。F5 や Nginx など、パートナーから提供されているロードバランサのオプションもあります。
 
-. Press *Create* and review the *Service* created. Notice the IP address assigned to the load balancer is from the range specified earlier in the lab.
+. *Create* を押し、作成された *Service* を確認します、ロードバランサに割り当てられている IP アドレスが、先に指定したアドレスレンジの範囲内であることを確認します。
 +
 image::images/MetalLB/12_Service_created.png[]
 
-. To verify connectivity to the database service via the external IP, open the web terminal by clicking the following icon in the right-top part.
+. 外部 IP を介したデータベースサービスへの接続性を確認するには、右上のアイコンをクリックして Web ターミナルを開きます。
 +
 image::images/OCP_Terminal_Icon.png[]
 
-. A console in the bottom part of the screen appears
+. 画面下部にコンソールが表示されます。
 +
 image::images/OCP_Terminal.png[]
 
-. Using the right console, try to access the IP assigned and the port 3306
+. コンソールを使って割り当てられた IP アドレスとポート 3306 にアクセスしてみましょう。
 +
 [%nowrap]
 ----
 [~] $ curl -s 192.168.123.202:3306 | cut -c1-16       
 ----
 +
-.Sample Output
+.サンプル出力
 +
 [%nowrap]
 ----
 5.5.68-MariaDB
 ----
 
-== Summary 
+== まとめ 
 
-MetalLB is a straightforward and simple solution for bare-metal, on-premises deployments to expose applications outside of the cluster, without the need to configure physical networks with NMstate or multus.
+MetalLB は、オンプレミス環境のベアメタルクラスタにおいて、NMState や Multus を使用して物理ネットワークを構成することなく、アプリケーションをクラスタの外部に公開するためのシンプルでわかりやすいソリューションです。

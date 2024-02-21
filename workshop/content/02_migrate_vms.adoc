@@ -53,7 +53,7 @@ OpenShift に移行する 3 層のアプリケーションが VMware 上にデ�
 * MariaDB データベースを実行する Linux サーバ 1 台
 
 // WKTBD: Replace with actual link for each student
-アプリケーションには次のリンクからアクセスできます: link:http://webapp.vc.opentlc.com/
+アプリケーションには次のリンクからアクセスできます: http://webapp.vc.opentlc.com/
 
 ここでは 4 つのうち、3 つの VM だけ移行します。OpenShift は `Service` を使うことで、SDN に接続する VM のネットワークトラフィックとロードバランシングをネイティブに処理します。したがって、HAproxy (ロードバランサ) VM を移行する必要はありません。
 
@@ -72,7 +72,7 @@ Datastore や Port Group などの vSphere のリソースと、OpnnShift で相
 image::images/MTV/100_vSphere_VM_List.png[]
 +
 [NOTE]
-実際に稼働している VM は、`_running` のサフィックスが付いているものです。後に行う MTV でのコールド・マイグレーションでは VM が停止している必要があるため、`_running` が付いていない VM は事前にクローンした、停止しているものです。
+表示されている VM は停止状態ですが、これは実際に稼働している VM から事前にクローンしたものです。後に行う MTV でのコールド・マイグレーションでは VM が停止している必要があります。
 
 . ネットワークビューに移動 (または link:https://portal.vc.opentlc.com/ui/app/dvportgroup;nav=n/urn:vmomi:DistributedVirtualPortgroup:dvportgroup-1916:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/ports[このリンク^]をクリック) し、ツリーを展開して VM が使用しているポートグループを表示します。名前が `segment-migrating-to-ocpvirt` であることを確認します。
 +
@@ -92,7 +92,7 @@ image::images/MTV/102_vSphere_Datastore.png[]
 image::images/MTV/91_MTV_Providers.png[]
 +
 [TIP]
-MTV 2.4 以降では、ユーザ作成のプロジェクト / Namespace を認識し、管理者権限を必要としません。そのため、VM のインポートをアプリケーション・チームや VM ユーザに委ねて、彼らが自分のペースで移行できるようにすることもできます！
+MTV 2.4 以降では、ユーザ作成のプロジェクト / Namespace を認識し、管理者権限を必要としません。そのため、VM のインポートをアプリケーション・チームや VM ユーザに委ねて、彼らが自分のペースで移行できるようにすることもできます。
 
 . ターゲット (移行先) のプラットフォームとして OpenShift Virtualization を表す `host` というプロバイダがあります。これはデフォルトで作成されます。
 +

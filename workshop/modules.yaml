@@ -24,7 +24,7 @@ modules:
     06_windows_vm:
         name: Windows 仮想マシン
     07_bare_metal:
-        name: ベアメタル OpenSHift の概要
+        name: ベアメタル OpenShift の概要
     08_network_management:
         name: ネットワーク管理
     09_storage_management:

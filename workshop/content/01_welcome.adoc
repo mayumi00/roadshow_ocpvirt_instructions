@@ -36,7 +36,7 @@ OpenShift Virtualization の仮想マシンは、デフォルトでは OpenShift
 === 仮想マシンユーザ向けモジュール
 
 * *Route を使ったアプリケーションの公開* : +
-このラボでは、Service と Route を使用してアプリケーション・コンポーネント間を内部で接続し、アプリケー ションのフロントエンドのみを外部に公開するプロセスについて説明します。
+このラボでは、Service と Route を使用してアプリケーション・コンポーネント間を内部で接続し、アプリケーションのフロントエンドのみを外部に公開するプロセスについて説明します。
 * *MetalLB を使ったアプリケーションの公開* : +
 VM を外部の L2 ネットワークに置くことなく、VM にホストされたアプリケーションに接続性を提供することは、アプリケーションへの接続性を管理する強力な方法です。このラボでは、VM を外部ネットワークに接続することなく、データベースだけを外部に公開するプロセスを説明します。
 
@@ -61,7 +61,7 @@ Red Hat OpenShift は、スピード、俊敏性、信頼性、そして幅広�
 Red Hat OpenShift Dev Spaces (旧称 Red Hat CodeReady Workspaces) 、ランタイム、インテグレーションとプロセス自動化、サーバレス、パイプラインなど、全体を通してセキュリティが確保されています。
 
 **インフラのコストをイノベーションに転換** +
-OpenShift ネイティブ・アーキテクチャは、レガシーな SDDC (Software-Defined Data Center) のコストの重い構造から、軽量なコンテナ・ネイティブ・フレームワークへと変化させます。
+OpenShift ネイティブ・アーキテクチャは、レガシーな SDDC (Software-Defined Data Center) の重い構造から、軽量なコンテナ・ネイティブ・フレームワークへと変化させます。
 
 **リスクの低減** +
 OpenShift はオンプレミスとパブリッククラウドのオプションをサポートしており、パブリッククラウドのロックインに対する保険になります。
@@ -74,7 +74,7 @@ Kubernetes、サーバレス、サービスメッシュ、Kubernetes Operators �
 
 == Next steps
 
-さらに OpenShift Virtualization について知りたい方は、次の情報ソースを訪問ご覧ください。
+さらに OpenShift Virtualization について知りたい方は、次の情報ソースをご覧ください。
 
 * https://www.redhat.com/ja/technologies/cloud-computing/openshift/virtualization[Red Hat OpenShift Virtualization Landing Page]
 * https://docs.openshift.com/container-platform/latest/virt/about_virt/about-virt.html[OpenShift documentation], 

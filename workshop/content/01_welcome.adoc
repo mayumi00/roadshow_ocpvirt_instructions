@@ -7,37 +7,37 @@ OpenShift Virtualization は、最新の Kubernetes ベースのインフラス�
 === 共通モジュール
 このワークショップには2つの共通のモジュールがあります。これらについては、参加者全員に最後まで受講していただくことをお勧めします。
 
-. 仮想マシンの移行 (Migration Toolkit for Virtualization) : +
-このセクションでは、Migration Toolkit for Virtualization (MTV) を使用して、既存の VMware vSphere 環境から OpenShift Virtualization にいくつかの VM を移行します。
-. OpenShift Virtualization の基礎 : +
+. *OpenShift Virtualization の基礎* : +
 このラボでは、OpenShift Virtualization で仮想マシンを作成して使用する方法に焦点を当てます。VM の管理者 / ユーザとして実行することが予想される最も一般的なタスクをカバーしています。
+. *仮想マシンの移行 (Migration Toolkit for Virtualization)* : +
+このセクションでは、Migration Toolkit for Virtualization (MTV) を使用して、既存の VMware vSphere 環境から OpenShift Virtualization にいくつかの VM を移行します。
 
 さらに、いくつかのオプションのモジュールがあります。 +
 あなたの特定の役割、責任、そしてあなたが興味を持つかもしれない内容に応じて受講いただけると、さらに OpenShift Virtualization による仮想化の理解が深まります。
 
 === 仮想マシン管理者向けモジュール
 
-* 仮想マシンのカスタマイズ : +
+* *仮想マシンのカスタマイズ* : +
 仮想マシンを実行する際に最も重要なコンセプトの1つである、既存のディスクイメージから VM を実行し、VM をカスタマイズする機能について紹介します。
-* Windows 仮想マシン : +
-Microsoft Windows Server は一般的に使用されているオペレーティングシステムであり、これがサポートされていなければ仮想化ソリューションは完成しません！このラボでは、SysPrep によるカスタマイズを含む、Windows Server 仮想マシンのプロビジョニング方法の1つを紹介します。
+* *Windows 仮想マシン* : +
+Microsoft Windows Server は一般的に使用されているオペレーティングシステムであり、これがサポートされていなければ仮想化ソリューションは完成しません。このラボでは、SysPrep によるカスタマイズを含む、Windows Server 仮想マシンのプロビジョニング方法の1つを紹介します。
 
 === 仮想インフラ管理者向けモジュール
 
-* ベアメタル OpenShift の概要 : +
+* *ベアメタル OpenShift の概要* : +
 OpenShift のノードとリソースの管理は、あなたが慣れ親しんでいる仮想インフラのものとは異なります。このモジュールでは、サーバハードウェアの責任者である場合に重要な OpenShift のいくつかの側面と概念について説明します。
-* ネットワーク管理 : +
+* *ネットワーク管理* : +
 OpenShift Virtualization の仮想マシンは、デフォルトでは OpenShift 内部の SDN (Software-defined Network) に接続します。このセクションでは、VM を VLAN のような外部の物理ネットワークに接続する方法を説明します。
-* ストレージ管理 : +
+* *ストレージ管理* : +
 このモジュールでは、OpenShift 上のストレージの基礎と、OpenShift Virtualization がいくつかのマシンイメージのブートソースを自動的に提供する方法を紹介します。このモジュールでは、スナップショットを使った操作の実行方法と、VM のクローンを作成する方法も紹介します。
-* バックアップとリストア : +
+* *バックアップとリストア* : +
 仮想マシンとそのデータを保護することは、パフォーマンスと可用性と同じくらい重要です。このラボでは、OpenShift API for Data Protection (OADP) がストレージに依存しない方法で VM を保護する方法を紹介します。
 
 === 仮想マシンユーザ向けモジュール
 
-* Route を使ったアプリケーションの公開 : +
+* *Route を使ったアプリケーションの公開* : +
 このラボでは、Service と Route を使用してアプリケーション・コンポーネント間を内部で接続し、アプリケー ションのフロントエンドのみを外部に公開するプロセスについて説明します。
-* MetalLB を使ったアプリケーションの公開 : +
+* *MetalLB を使ったアプリケーションの公開* : +
 VM を外部の L2 ネットワークに置くことなく、VM にホストされたアプリケーションに接続性を提供することは、アプリケーションへの接続性を管理する強力な方法です。このラボでは、VM を外部ネットワークに接続することなく、データベースだけを外部に公開するプロセスを説明します。
 
 == OpenShift Virtualization とは?

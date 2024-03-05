@@ -163,7 +163,7 @@ VM へのアクセス権限を持つユーザーは、Web コンソールから 
 
 . 左メニューで *Virtualization* -> *VirtualMachines* に戻ります。
 
-. リストから _Virtual Machine_ `fedora02` を選択します。
+. リストから _Virtual Machine_ `fedora01` を選択します。
 
 . *Actions* メニューをクリックし、利用可能なオプションを表示します。
 +

@@ -1,6 +1,8 @@
 :scrollbar:
 :toc2:
 :preinstall_operators: %preinstall_operators%
+:numbered:
+
 
 =  仮想マシンのバックアップ / リストア
 
@@ -16,11 +18,6 @@ OpenShift Virtualization の VM のバックアップとリストアには複数
 さらに、多くのストレージ・パートナーは、自社のネイティブ・テクノロジーを使用して VM のディスクを保護する機能を提供しています。OpenShift Virtualization との互換性を確認するために、ストレージとバックアップソフトウェアのベンダに確認してください。
 
 このラボでは、OADP を使って VM のバックアップとリストアを実行します。
-
-.ゴール
-* OADP Operator のレビュー
-* VM のバックアップの実行
-* VM のリストアの実行
 
 == OADP Operator のレビュー
 

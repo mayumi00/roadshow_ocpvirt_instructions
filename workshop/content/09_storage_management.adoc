@@ -2,7 +2,7 @@
 :toc2:
 :numbered:
 
-== ストレージ管理への導入
+== はじめに
 
 Red Hat OpenShift は、オンプレミスとクラウドプロバイダーの両方で、複数のタイプのストレージをサポートしています。OpenShift Virtualization では、OpenShift を実行している環境で、さまざまなコンテナ・ストレージ・インターフェース (CSI) プロビジョナーを使用できます。例えば、OpenShift Data Foundation、NetApp、Dell/EMC、Fujitsu、Hitachi、Pure Storage、Portworx、その他多くの企業が、OpenShift Virtualization でオンプレミス、CSI プロビジョニング、ReadWriteMany (RWX) ボリュームをサポートしています。
 

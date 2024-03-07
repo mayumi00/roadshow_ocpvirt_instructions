@@ -2,7 +2,7 @@
 :toc2:
 :numbered:
 
-== ネットワーク管理への導入
+== はじめに
 
 デフォルトでは、全ての VM は OpenShift の SDN に接続され、他の VM や任意の OpenShift ネイティブアプリケーションを含む、OpenShift クラスタ上のワークロードからのアクセスを可能とします。
 
@@ -15,10 +15,6 @@
 
 [NOTE]
 このラボの OpenShift 環境では、すでに VM が稼働する各ノード上に Linux ブリッジが設定されており、外部ネットワークリソースとの接続が簡単にできるようになっています。
-
-.ゴール
-* Network Attachment Definition を作成する。
-* VM を外部ネットワークに接続する。
 
 == Network Attachment Definition の作成
 

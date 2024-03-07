@@ -1,5 +1,6 @@
 :scrollbar:
 :toc2:
+:numbered:
 
 = Route を使ったアプリケーションの公開
 

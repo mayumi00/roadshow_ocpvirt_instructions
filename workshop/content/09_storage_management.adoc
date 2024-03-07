@@ -1,8 +1,5 @@
 :scrollbar:
 :toc2:
-
-= ストレージ管理ラボ
-
 :numbered:
 
 == ストレージ管理への導入
@@ -52,7 +49,7 @@ image::images/Storage/02_List_PVCs.png[]
 +
 image::images/Storage/03_PVC_Info.png[]
 
-. VM が作成されると、_Boot Source_ イメージがクローンされ、新しいディスクが作成されます。プロジェクトを `vmexamples` に切り替えて、_PVC_ (ディスク) のリストを確認してください。このプロジェクトの VM の各ディスク用の PVC と、このワークショップの以前のモジュールで作成した Microsoft Windows Server 2019 ディスクイメージ用の PVC が表示されます。この PVC と Microsoft Windows ISO は、必要に応じて OS をインストールするために他の仮想マシンで再利用することができます。
+. VM が作成されると、_Boot Source_ イメージがクローンされ、新しいディスクが作成されます。プロジェクトを `vmexamples` に切り替えて、_PVC_ (ディスク) のリストを確認してください。このプロジェクトの VM の各ディスク用の PVC と、このワークショップで作成した Microsoft Windows Server 2019 ディスクイメージ用の PVC が表示されます。この PVC と Microsoft Windows ISO は、必要に応じて OS をインストールするために他の仮想マシンで再利用することができます。
 +
 image::images/Storage/04_List_PVCs_VMs.png[]
 
@@ -117,7 +114,7 @@ image::images/Storage/13_VM_Restore_Disabled.png[]
 
 . 実行中の VM を意図的に故障させます。*Console* タブに切り替えて、VM に変更を加えます。この小さな変更で VM はブートできなくなります。
 +
-ユーザ `fedora` とパスワード `ocpVirtIsGre@t` (または前のモジュールで指定したもの) でログインし、次のコマンドを実行します。
+ユーザ `fedora` とパスワード `ocpVirtIsGre@t` (または指定したもの) でログインし、次のコマンドを実行します。
 +
 [source,sh]
 ----

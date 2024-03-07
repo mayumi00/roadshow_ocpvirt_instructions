@@ -26,13 +26,13 @@ Network Attachment Definition は既存のネットワークデバイスを利�
 OpenShift ノードのネットワーク設定を管理するには、NMState Operator というツールを使います。NMState を使うことで Kubernetes の構造で OpenShift ノード上にネットワークインターフェースを構成することができます。あなたのニーズとネットワーク要件に合うネーミングをすることができます。NMState とホストネットワーキングの詳細、および構成の表示と管理方法については、
 link:https://docs.openshift.com/container-platform/4.14/networking/k8s_nmstate/k8s-nmstate-about-the-k8s-nmstate-operator.html[ドキュメント] 参照してください。
 
-. 左メニューで *Networking* -> *Network Attachment Definitions* に移動し、*Create network attachment definition* をクリックします。
+. 左メニューで *Networking* -> *Network Attachment Definitions* に移動し、`vmexamples` プロジェクトを選択したうえで、*Create network attachment definition* をクリックします。
 +
 image::images/Networking/01_NAD_Dashboard.png[]
 +
 [IMPORTANT]
 ====
-`vmexamples` プロジェクトを選択してください。
+必ず `vmexamples` プロジェクトを選択してください。
 ====
 
 . フォームで以下のように入力し、*Create* を押します。

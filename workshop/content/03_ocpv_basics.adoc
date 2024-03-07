@@ -362,7 +362,7 @@ image::images/Create_VM_URL/02_Wizard_Scheduling.png[]
 +
 image::images/Create_VM_URL/03_Wizard_Networking.png[]
 
-. `default` の右端にある 3 つのドットアイコンをクリックし、デフォルトのオプションを確認します。
+. `default` の右端にある 3 つのドットアイコンをクリックして *Edit* を選択し、デフォルトのオプションを確認します。
 +
 image::images/Create_VM_URL/03_Wizard_Networking_Options.png[]
 +
@@ -371,18 +371,16 @@ image::images/Create_VM_URL/03_Wizard_Networking_Options.png[]
 * *Type* は VM がどのようにネットワークに接続されるかを示します。SDN や _Pod networking_ の場合は `Masquerade` に設定されます。VLAN ネットワークの場合は `Bridge` に設定されます。
 * 新しく作成された NIC には、割り当てる *MAC address* をカスタマイズするオプションがあります。ここでは既に作成された NIC を見ているため、グレーアウトされています。
 +
-この時点では利用可能な他のネットワークはないので、*Cancel* を押してダイアログを終了します。
-+
 [NOTE]
 ネットワークを追加し、VM をレイヤー2 (VLAN) ネットワークに接続する方法を確認したい場合は、workshop のナビゲーションメニューから「ネットワークの管理」モジュールを受講してください。
 
-. *Disks* タブに移動して、VM に割り当てられているデバイスを確認します。
+. *Cancel* を押してダイアログを終了します。*Disks* タブに移動して、VM に割り当てられているデバイスを確認します。
 +
 image::images/Create_VM_URL/04_Wizard_Storage.png[]
 +
 VM を作成する前に、新しいディスクを追加したり、デフォルトのディスクを変更したりすることができます。また、Storage Class やブートソース (例えば ISO からブートする) を変更したり、デフォルトの `virtio` インターフェースの代わりにディスクインターフェースを定義することもできます。
 
-. `rootdisk` の右端にある 3 つのドットアイコンをクリックし、デフォルトのオプションを確認します。
+. `rootdisk` の右端にある 3 つのドットアイコンをクリックして *Edit* を選択し、デフォルトのオプションを確認します。
 +
 image::images/Create_VM_URL/04_Wizard_Storage_settings.png[]
 +
@@ -395,7 +393,7 @@ image::images/Create_VM_URL/04_Wizard_Storage_settings.png[]
 [NOTE]
 VM のストレージについて詳しく知りたい場合は、workshop のナビゲーションメニューから「ストレージの管理」モジュールを受講してください。
 
-. *Scripts* タブに移動します。このタブは `cloud-init` や `SysPrep` などでゲスト OS のカスタマイズをデプロイ時に適用するために使います。
+. *Cancel* を押してダイアログを終了し、*Scripts* タブに移動します。このタブは `cloud-init` や `SysPrep` などでゲスト OS のカスタマイズをデプロイ時に適用するために使います。
 +
 image::images/Create_VM_URL/05_Wizard_Scripts.png[]
 +

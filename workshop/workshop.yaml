@@ -6,8 +6,6 @@ modules:
     - 03_ocpv_basics
     - 02_migrate_vms
     - 04_thanks
-    - 05_ocpv_customization
-    - 06_windows_vm
     - 07_bare_metal
     - 08_network_management
     - 09_storage_management

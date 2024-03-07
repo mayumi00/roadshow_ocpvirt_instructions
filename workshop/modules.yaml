@@ -19,10 +19,6 @@ modules:
         name: OpenShift Virtualization の基礎
     04_thanks:
         name: Thank you and next steps
-    05_ocpv_customization:
-        name: 仮想マシンのカスタマイズ
-    06_windows_vm:
-        name: Windows 仮想マシン
     07_bare_metal:
         name: ベアメタル OpenShift の概要
     08_network_management:

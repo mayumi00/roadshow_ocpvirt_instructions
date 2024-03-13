@@ -73,7 +73,7 @@ Datastore や Port Group などの vSphere のリソースと、OpnnShift で相
 image::images/MTV/100_vSphere_VM_List.png[]
 +
 [NOTE]
-表示されている VM は停止状態ですが、これは実際に稼働している VM から事前にクローンしたものです。後に行う MTV でのコールド・マイグレーションでは VM が停止している必要があります。
+表示されている VM は停止状態ですが、これは実際に稼働している VM から事前にクローンしたものです。後に行う MTV でのコールド・マイグレーションでは VM が停止している必要があるためです。
 
 . ネットワークビューに移動 (または link:https://portal.vc.opentlc.com/ui/app/dvportgroup;nav=n/urn:vmomi:DistributedVirtualPortgroup:dvportgroup-1916:ee1bef3e-6179-4c1f-9d2a-004c7b0df4e5/ports[このリンク^]をクリック) し、ツリーを展開して VM が使用しているポートグループを表示します。名前が `segment-migrating-to-ocpvirt` であることを確認します。
 +
@@ -88,7 +88,7 @@ image::images/MTV/102_vSphere_Datastore.png[]
 *Migration Toolkit for Virtualization* (*MTV*) は、VMware Virtual Disk Development Kit (*VDDK*) SDK を使用して、VMware vSphere から仮想ディスクを転送します。この環境では VDDK はすでにセットアップされています
 
 . 左メニューの *Migration* -> *Providers for virtualization* に移動します。
-. プロジェクト `openshift-mtv` を選択します。
+. プロジェクトのプルダウンメニューで *Show default projects* のスイッチを有効にし、プロジェクト `openshift-mtv` を選択します。
 +
 image::images/MTV/91_MTV_Providers.png[]
 +
@@ -221,7 +221,9 @@ image::images/MTV/59_Completed_VMWARE_Plan.png[]
 +
 [IMPORTANT]
 ====
-多数の参加者が同時にタスクを並行して実行することで、実際の環境よりも遅くなることがあります。しばらくお待ちください。
+多数の参加者が同時にタスクを並行して実行することで、実際の環境よりも遅くなることがあります
+
+また、移行のタスクが完了するまで待つ必要はありません。完了しなくても後続のモジュールは継続できます。
 ====
 
 === 移行した仮想マシンの確認と設定
@@ -229,6 +231,11 @@ image::images/MTV/59_Completed_VMWARE_Plan.png[]
 これで VM が移行され、OpenShift Virtualization 上で起動できるようになりました。VM コンソールに接続して VMware vCenter と同じように操作することができます。
 
 インポートされた VM で稼働するアプリケーションを使って、OpenShift と Kubernetes の機能についてもっと学びたい場合は、モジュール "Route を使ったアプリケーションの公開" を実施してください。
+
+[NOTE]
+====
+事前にインポートされた VM が `vmimported` プロジェクトにあります。移行処理が完了していない場合は、`vmimported` プロジェクトの VM を使うことができます。
+====
 
 == まとめ
 

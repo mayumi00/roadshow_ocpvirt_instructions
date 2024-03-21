@@ -47,7 +47,7 @@ image::images/Networking/02_NAD_Create.png[]
 +
 ホスト上の 1 つの Linux ブリッジは、多くの異なる VLAN を持つことができます。このシナリオでは、ホストインターフェースとブリッジを個別に作成するのではなく、それぞれに Network Attachment Definiton を作成するだけです。
 
-. Network Attachment Definiton の詳細を確認します。これおは `vmexamples` プロジェクトで作成されたので、他のプロジェクトでは使用できません。
+. Network Attachment Definiton の詳細を確認します。これは `vmexamples` プロジェクトで作成されたので、他のプロジェクトでは使用できません。
 +
 image::images/Networking/03_NAD_Created.png[]
 
